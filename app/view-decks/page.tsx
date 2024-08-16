@@ -25,11 +25,12 @@ useEffect(()=>{
         }
        //if no decks then display a message
     }
-    const viewDeck = (deckName:string)=>{
-        router.push(`/view-flashcards?topic=${deckName}`)
-    }
+   
     getDecks()
 },[user])
+const viewDeck = (deckName:string)=>{
+    router.push(`/view-flashcards?topic=${deckName}`)
+}
 
 
 
