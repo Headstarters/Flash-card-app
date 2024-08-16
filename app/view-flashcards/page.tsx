@@ -20,24 +20,25 @@ if(!isLoaded || !isSignedIn){
     return <></>
 }
 
-const getFlashCards = async ()=>{
-    if(!user || !topic)  return
 
-    const deckRef = doc(collection(db,'users'),user?.id)
-    const flashCardRef = collection(deckRef,topic)
-    const flashCardSnap = await getDocs(flashCardRef)
-    const flashCardsCollection = flashCardSnap.docs.map(doc=>({
-        id:doc.id,
-        ...doc.data()
-    })) 
-
-    if(flashCardsCollection.length > 0){
-        setFlashCards(flashCardsCollection)
-    }
-   //if no decks then display a message
-}
 
 useEffect(()=>{
+    const getFlashCards = async ()=>{
+        if(!user || !topic)  return
+    
+        const deckRef = doc(collection(db,'users'),user?.id)
+        const flashCardRef = collection(deckRef,topic)
+        const flashCardSnap = await getDocs(flashCardRef)
+        const flashCardsCollection = flashCardSnap.docs.map(doc=>({
+            id:doc.id,
+            ...doc.data()
+        })) 
+    
+        if(flashCardsCollection.length > 0){
+            setFlashCards(flashCardsCollection)
+        }
+       //if no decks then display a message
+    }
   getFlashCards()
 },[user])
 
