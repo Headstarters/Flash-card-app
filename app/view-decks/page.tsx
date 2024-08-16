@@ -4,7 +4,7 @@ import { db } from "@/firebase"
 import { getDoc,getDocs,doc,collection } from "firebase/firestore"
 import { Box,Container,AppBar,Toolbar,TextField,Typography, Button , Grid, Card, CardActionArea, CardContent} from "@mui/material"
 import { useRouter } from "next/navigation"
-import { useUser } from "@clerk/nextjs"
+import { UserButton, useUser } from "@clerk/nextjs"
 
 
 export default function DeckPage(){
@@ -48,8 +48,9 @@ if(!isLoaded || !isSignedIn){
                 
             <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
-           <Button color="inherit" href="/" >Home</Button>
+           {/* <Button color="inherit" href="/" >Home</Button> */}
             <Button color="inherit" href="/generate" >Generate</Button>
+            <UserButton/>
             </Toolbar>
             
           </AppBar>

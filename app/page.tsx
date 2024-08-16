@@ -5,10 +5,16 @@ import getStripe from "./util/get-stripe";
 import Container from '@mui/material/Container';
 import { AppBar, Box, Button, Grid, Toolbar, Typography } from "@mui/material";
 import Head from "next/head";
-import { SignedIn, SignedOut, SignIn, UserButton } from "@clerk/nextjs";
-
+import { SignedIn, SignedOut, SignIn, UserButton, RedirectToSignIn } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
+import { useRouter, usePathname } from "next/navigation";
+import DeckPage from "./view-decks/page";
 //need to make sure certain content is only available on pro (ai generation)` 
 export default function Home() {
+  const {isSignedIn} = useUser()
+  const router = useRouter()
+
+
   const handleSubmit = async () => {
     const checkoutSession = await fetch('/api/stripe-session', {
       method: 'POST',
@@ -35,21 +41,21 @@ export default function Home() {
         <meta name="description" content=" AI Flash Card App" />
       </Head>
       {/*made for toolbars. position static stays in place. Fixed moves with the page. Sticky is like a mix of both*/}
+      
+
+      <SignedOut>
       <AppBar position="static">
        
-        <Toolbar>
-        <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
-          {/* anythign imported in layout is available here. This is basically if signed in what it displays */}
-          <SignedOut>
-            <Button color="inherit" href="/sign-in">Sign In</Button>
-            <Button color="inherit" href="/sign-up">Sign Up</Button>
-          </SignedOut>
-          <SignedIn>
-            <UserButton/>
-          </SignedIn>
-        </Toolbar>
-      </AppBar>
+       <Toolbar>
+       <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
+         {/* anythign imported in layout is available here. This is basically if signed in what it displays */}
+         
+           <Button color="inherit" href="/sign-in">Sign In</Button>
+           <Button color="inherit" href="/sign-up">Sign Up</Button>
+         
 
+       </Toolbar>
+     </AppBar>
       <Box
       sx={{
         textAlign: "center",
@@ -59,7 +65,7 @@ export default function Home() {
         <Typography variant="h3">Welcome to the AI Flash Card App</Typography>
         <Typography variant="h5">Create flash cards and study them</Typography>
         <Box sx ={{display:'flex',justifyContent:'center'}}> 
-        <Button variant="contained" href='/generate'>Get Started</Button>
+        <Button variant="contained" href='/view-decks'>Get Started</Button>
         </Box>
         
       </Box>
@@ -140,8 +146,15 @@ export default function Home() {
           </Grid>
         </Grid>
       </Box>
+
+
+      </SignedOut>
+      <SignedIn>
+        <DeckPage/>
+      </SignedIn>
     </Container>
     </>
   );
 }
+
 

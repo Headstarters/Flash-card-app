@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-
+import { useUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 // Define public routes
 const isPublicRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)']);
 
@@ -8,6 +9,7 @@ export default clerkMiddleware((auth, request) => {
   if (!isPublicRoute(request) && request.nextUrl.pathname !== '/') {
     auth().protect();
   }
+
 });
 
 // Configuration for the middleware

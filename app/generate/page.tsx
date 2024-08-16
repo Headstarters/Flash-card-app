@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 //similar to useNavigate in react router
 import {useRouter} from "next/navigation";
 import { useState ,useEffect} from "react";
@@ -119,6 +119,7 @@ export default function GenerateFlashcards() {
             <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
             <Button color="inherit" href="/view-decks" >View Decks</Button>
+            <UserButton/>
             </Toolbar>
             
           </AppBar>

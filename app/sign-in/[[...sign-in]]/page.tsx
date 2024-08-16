@@ -23,7 +23,7 @@ export default function SignInPage() {
         display: 'flex',
         
     }}>
-        <SignIn  />
+        <SignIn   />
         </Box>
         </Container>
    
