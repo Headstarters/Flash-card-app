@@ -12,22 +12,23 @@ const {isLoaded,isSignedIn,user} = useUser()
 const router = useRouter()
 const [flashCards,setFlashCards] = useState([])
 
-const getDecks = async ()=>{
-    if(!user) return
 
-    const deckRef = doc(collection(db,'users'),user?.id)
-    const deckSnap = await getDoc(deckRef)
-    const decks = deckSnap?.data()?.flashcards || []
-    if(decks.length > 0){
-        setFlashCards(decks)
-    }
-   //if no decks then display a message
-}
-const viewDeck = (deckName:string)=>{
-    router.push(`/view-flashcards?topic=${deckName}`)
-}
 useEffect(()=>{
-  getDecks()
+    const getDecks = async ()=>{
+        if(!user) return
+    
+        const deckRef = doc(collection(db,'users'),user?.id)
+        const deckSnap = await getDoc(deckRef)
+        const decks = deckSnap?.data()?.flashcards || []
+        if(decks.length > 0){
+            setFlashCards(decks)
+        }
+       //if no decks then display a message
+    }
+    const viewDeck = (deckName:string)=>{
+        router.push(`/view-flashcards?topic=${deckName}`)
+    }
+    getDecks()
 },[user])
 
 
