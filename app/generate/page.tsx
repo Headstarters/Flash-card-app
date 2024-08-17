@@ -148,8 +148,8 @@ console.log(loading)
        
       }}
       >
-
-      {/* <Typography variant='h4' sx={{mb:3}}>Generate Flashcards</Typography> */}
+        
+      <Typography variant='h4' sx={{mb:3}}>Generate Flashcards</Typography>
 
       <Stack direction={'row'} spacing={2} sx={{mb:2}}>
       <TextField  label="topic" variant='standard'  type = 'standard'  onChange={e=>setPromptTopic(e.target.value)}/>
