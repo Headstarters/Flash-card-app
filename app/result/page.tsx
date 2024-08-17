@@ -56,12 +56,16 @@ export default function ResultPage() {
       } 
       
      
-        if(session && session.payment_status === 'paid'){
-            //using a useEffect so I can call this function without the await
-              upgradeRole(user?.id,'pro')
-              router.push('/view-decks')
-            
-          }
+      
+        if (session && session.payment_status === 'paid') {
+          // Upgrade the user's role
+          upgradeRole(user?.id, 'pro');
+      
+          // Navigate to '/view-decks' after upgrading the role
+          router.push('/view-decks');
+        }
+      
+     
          
       
       
