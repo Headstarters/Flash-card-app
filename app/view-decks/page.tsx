@@ -1,101 +1,208 @@
-'use client'
-import { db } from "@/firebase"
-import { UserButton, useUser } from "@clerk/nextjs"
-import { AppBar, Box, Button, Card, CardActionArea, CardContent, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Toolbar, Typography } from "@mui/material"
-import { arrayUnion, collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+"use client";
+import { db } from "@/firebase";
+import { UserButton, useUser } from "@clerk/nextjs";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  AppBar,
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  TextField,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
+export default function DeckPage() {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const router = useRouter();
+  const [flashCards, setFlashCards] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [newDecks, setNewDecks] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingDeck, setEditingDeck] = useState(null);
 
-export default function DeckPage(){
-const {isLoaded,isSignedIn,user} = useUser()
-const router = useRouter()
-const [flashCards,setFlashCards] = useState([])
-const [open, setOpen] = useState(false)
-const [newDecks, setNewDecks] = useState('')
+  useEffect(() => {
+    const getDecks = async () => {
+      if (!user) return;
 
+      const deckRef = doc(collection(db, "users"), user?.id);
+      const deckSnap = await getDoc(deckRef);
+      const decks = deckSnap?.data()?.flashcards || [];
+      if (decks.length > 0) {
+        setFlashCards(decks);
+      }
+      //if no decks then display a message
+    };
 
-useEffect(()=>{
-    const getDecks = async ()=>{
-        if(!user) return
+    getDecks();
+  }, [user]);
+  const viewDeck = (deckName: string) => {
+    router.push(`/view-flashcards?topic=${deckName}`);
+  };
 
-        const deckRef = doc(collection(db,'users'),user?.id)
-        const deckSnap = await getDoc(deckRef)
-        const decks = deckSnap?.data()?.flashcards || []
-        if(decks.length > 0){
-            setFlashCards(decks)
-        }
-       //if no decks then display a message
-    }
-
-    getDecks()
-},[user])
-const viewDeck = (deckName:string)=>{
-    router.push(`/view-flashcards?topic=${deckName}`)
-}
-
-const handleOpen = () => setOpen(true)
+  const handleOpen = () => setOpen(true);
   const handleClose = () => {
-    setOpen(false)
-    setNewDecks('')
-  }
+    setOpen(false);
+    setNewDecks("");
+  };
 
   const handleAddDecks = async () => {
-    if (!user || !newDecks.trim()) return
-    const deckNames = newDecks.split(',').map(name => name.trim()).filter(name => name !== '')
-    const userDocRef = doc(db, 'users', user.id)
+    if (!user || !newDecks.trim()) return;
+    const deckNames = newDecks
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name) => name !== "");
+    const userDocRef = doc(db, "users", user.id);
     await updateDoc(userDocRef, {
-      flashcards: arrayUnion(...deckNames.map(name => ({ topic: name })))
-    })
-    setFlashCards(prev => [...prev, ...deckNames.map(name => ({ topic: name }))])
-    handleClose()
+      flashcards: arrayUnion(...deckNames.map((name) => ({ topic: name }))),
+    });
+    setFlashCards((prev) => [
+      ...prev,
+      ...deckNames.map((name) => ({ topic: name })),
+    ]);
+    handleClose();
+  };
+
+  if (!isLoaded || !isSignedIn) {
+    return <></>;
   }
 
+  const handleEditDeck = (deck) => {
+    setEditingDeck({ oldTopic: deck.topic, topic: deck.topic });
+    setEditOpen(true);
+  };
 
-if(!isLoaded || !isSignedIn){
-        return <></>
+  const handleEditClose = () => {
+    setEditOpen(false);
+    setEditingDeck(null);
+  };
+
+  const handleEditDeckSave = async () => {
+    console.log("Saving edit:", editingDeck);
+    if (!user || !editingDeck) return;
+    const userDocRef = doc(db, "users", user.id);
+    const updatedFlashCards = flashCards.map((deck) =>
+      deck.topic === editingDeck.oldTopic ? { topic: editingDeck.topic } : deck
+    );
+    try {
+      await updateDoc(userDocRef, {
+        flashcards: updatedFlashCards,
+      });
+      console.log("Firestore update successful");
+      setFlashCards(updatedFlashCards);
+      handleEditClose();
+    } catch (error) {
+      console.error("Error updating deck:", error);
+      // Optionally, show an error message to the user
     }
+  };
 
-    return (
-        <>
-        <Box>
+  const handleDeleteDeck = async (deckId) => {
+    if (!user) return;
+    const userDocRef = doc(db, "users", user.id);
+    await updateDoc(userDocRef, {
+      flashcards: flashCards.filter((deck) => deck.topic !== deckId),
+    });
+    setFlashCards((prev) => prev.filter((deck) => deck.topic !== deckId));
+  };
+
+  return (
+    <>
+      <Box>
         <AppBar position="static">
-            <Toolbar>
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Flash Card App
+            </Typography>
+            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
+            {/* <Button color="inherit" href="/" >Home</Button> */}
+            <Button color="inherit" href="/generate">
+              Generate
+            </Button>
+            <Button color="inherit" onClick={handleOpen}>
+              Add Decks
+            </Button>
+            <UserButton />
+          </Toolbar>
+        </AppBar>
+      </Box>
 
-            <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
-           {/*consider using Link to wrap this(?) because the href uses an a tag*/}
-           {/* <Button color="inherit" href="/" >Home</Button> */}
-            <Button color="inherit" href="/generate" >Generate</Button>
-            <Button color="inherit" onClick={handleOpen}>Add Decks</Button>
-            <UserButton/>
-            </Toolbar>
-
-          </AppBar>
-          </Box>
-
-
-                <Grid container spacing={2} sx={{ mt: 2 }}>
+      <Grid container spacing={2} sx={{ mt: 2 }}>
         {flashCards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card sx={{ cursor: 'pointer' }} onClick={() => viewDeck(flashcard['topic'])}>
-              <CardContent>
-                        <Typography>{flashcard['topic']}</Typography>
-                    </CardContent>
-                    </Card>
-                    </Grid>
-                ))}
-                </Grid>
-                <Dialog open={open} onClose={handleClose}>
+            <Card sx={{ cursor: "pointer", position: "relative" }}>
+              <CardContent onClick={() => viewDeck(flashcard.topic)}>
+                <Typography>{flashcard.topic}</Typography>
+              </CardContent>
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 5,
+                  right: 5,
+                  display: "flex",
+                }}
+              >
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditDeck(flashcard);
+                  }}
+                  size="small"
+                  sx={{ color: "blue" }}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteDeck(flashcard.topic);
+                  }}
+                  size="small"
+                  sx={{ color: "red" }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>Add Multiple Decks</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Deck Names (comma-separated)"
+            label="IE: Planets, Coding, Food, etc."
             fullWidth
             variant="outlined"
             value={newDecks}
             onChange={(e) => setNewDecks(e.target.value)}
+            InputProps={{
+              style: { fontSize: "1rem" },
+            }}
+            sx={{ mt: 2 }}
           />
         </DialogContent>
         <DialogActions>
@@ -103,6 +210,25 @@ if(!isLoaded || !isSignedIn){
           <Button onClick={handleAddDecks}>Add Decks</Button>
         </DialogActions>
       </Dialog>
+      <Dialog open={editOpen} onClose={handleEditClose}>
+        <DialogTitle>Edit Deck</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Deck Name"
+            fullWidth
+            value={editingDeck?.topic || ""}
+            onChange={(e) =>
+              setEditingDeck({ ...editingDeck, topic: e.target.value })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditClose}>Cancel</Button>
+          <Button onClick={handleEditDeckSave}>Save</Button>
+        </DialogActions>
+      </Dialog>
     </>
-  )
+  );
 }
