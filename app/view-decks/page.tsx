@@ -8,7 +8,6 @@ import {
   Box,
   Button,
   Card,
-  CardActionArea,
   CardContent,
   Container,
   Dialog,
