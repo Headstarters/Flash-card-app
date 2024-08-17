@@ -2,7 +2,7 @@
 import { db } from "@/firebase"
 import { UserButton, useUser } from "@clerk/nextjs"
 import { AppBar, Box, Button, Card, CardActionArea, CardContent, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Toolbar, Typography } from "@mui/material"
-import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore"
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs } from "firebase/firestore"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { FlashCard } from "../components/FlashCard"
@@ -65,6 +65,14 @@ useEffect(() => {
     handleClose()
   }
 
+const handleRemoveCard = async (cardId) => {
+  if (!user || !topic) return
+  const deckRef = doc(collection(db, 'users'), user.id)
+  const cardRef = doc(deckRef, topic, cardId)
+  await deleteDoc(cardRef)
+  setFlashCards(prev => prev.filter(card => card.id !== cardId))
+}
+
   if (!isLoaded || !isSignedIn) {
     return <></>
   }
@@ -85,7 +93,18 @@ useEffect(() => {
       <Grid container spacing={2} sx={{ mt: 2 }}>
         {flashCards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <FlashCard front={flashcard['front']} back={flashcard['back']} />
+            <Box position="relative">
+      <FlashCard front={flashcard['front']} back={flashcard['back']} />
+      <Button
+        onClick={() => handleRemoveCard(flashcard.id)}
+        variant="contained"
+        color="error"
+        size="small"
+        sx={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
+      >
+        Remove
+      </Button>
+    </Box>
           </Grid>
         ))}
       </Grid>
