@@ -55,10 +55,10 @@ useEffect(()=>{
             <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
            {/* <Button color="secondary" onClick={handleStripeSubmit} >Go Pro</Button> */}
-           <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
+
             <Button color="inherit" href="/view-decks" >View Decks</Button>
             {
-            role==='pro' ?(
+            isLoaded && role==='pro' ?(
             <Button color="inherit" href="/generate" >Generate</Button>):
             <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
            }

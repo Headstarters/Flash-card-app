@@ -71,7 +71,7 @@ if(!isLoaded || !isSignedIn){
 
           
            {
-            role==='pro' ?(
+           isLoaded && role==='pro' ?(
             <Button color="inherit" href="/generate" >Generate</Button>):
             <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
            }
