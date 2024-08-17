@@ -7,6 +7,7 @@ const openai = new OpenAI({
 });
 
 export async function POST(req:Request){
+
     //req.text() from body type text
     try{
     const userInput = await req.text()
