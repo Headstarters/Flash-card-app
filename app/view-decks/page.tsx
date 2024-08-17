@@ -142,7 +142,7 @@ export default function DeckPage() {
       handleEditClose();
     } catch (error) {
       console.error("Error updating deck:", error);
-      // Optionally, show an error message to the user
+      // Optionally, show an error message to the user.
     }
   };
 
