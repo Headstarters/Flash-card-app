@@ -88,16 +88,19 @@ export default function FlashCardPage() {
     const deckRef = doc(collection(db, "users"), user.id);
     const cardRef = collection(deckRef, topic);
 
+    const newCardIds = [];
     for (const card of validCards) {
-      await addDoc(cardRef, {
+      const docRef = await addDoc(cardRef, {
         front: card.question.trim(),
         back: card.answer.trim(),
       });
+      newCardIds.push(docRef.id);
     }
 
     setFlashCards((prev) => [
       ...prev,
-      ...validCards.map((card) => ({
+      ...validCards.map((card, index) => ({
+        id: newCardIds[index],
         front: card.question,
         back: card.answer,
       })),
@@ -112,11 +115,16 @@ export default function FlashCardPage() {
   };
 
   const handleRemoveCard = async (cardId) => {
-    if (!user || !topic) return;
-    const deckRef = doc(collection(db, "users"), user.id);
-    const cardRef = doc(deckRef, topic, cardId);
-    await deleteDoc(cardRef);
-    setFlashCards((prev) => prev.filter((card) => card.id !== cardId));
+    if (!user || !topic || !cardId) return;
+    try {
+      const deckRef = doc(collection(db, "users"), user.id);
+      const cardRef = doc(deckRef, topic, cardId);
+      await deleteDoc(cardRef);
+      setFlashCards((prev) => prev.filter((card) => card.id !== cardId));
+    } catch (error) {
+      console.error("Error removing card:", error);
+      // Optionally, show an error message to the user
+    }
   };
 
   const handleEditOpen = (card) => {

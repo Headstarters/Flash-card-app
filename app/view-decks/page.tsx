@@ -28,6 +28,7 @@ import {
   getDoc,
   getDocs,
   updateDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -105,9 +106,37 @@ export default function DeckPage() {
       deck.topic === editingDeck.oldTopic ? { topic: editingDeck.topic } : deck
     );
     try {
+      // Update the deck name in the user's document
       await updateDoc(userDocRef, {
         flashcards: updatedFlashCards,
       });
+
+      // Rename the subcollection
+      const oldCollectionRef = collection(
+        db,
+        "users",
+        user.id,
+        editingDeck.oldTopic
+      );
+      const newCollectionRef = collection(
+        db,
+        "users",
+        user.id,
+        editingDeck.topic
+      );
+
+      const querySnapshot = await getDocs(oldCollectionRef);
+      const batch = writeBatch(db);
+
+      querySnapshot.forEach((document) => {
+        const oldDocRef = document.ref;
+        const newDocRef = doc(newCollectionRef, document.id);
+        batch.set(newDocRef, document.data());
+        batch.delete(oldDocRef);
+      });
+
+      await batch.commit();
+
       console.log("Firestore update successful");
       setFlashCards(updatedFlashCards);
       handleEditClose();
