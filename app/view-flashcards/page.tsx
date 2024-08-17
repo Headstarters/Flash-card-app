@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useUser,UserButton } from "@clerk/nextjs"
 import { FlashCard } from "../components/FlashCard"
 import {handleStripeSubmit} from '../lib/handleStripeSubmit'
+import Link from "next/link"
 
 export default function FlashCardPage(){
 const {isLoaded,isSignedIn,user} = useUser()
@@ -56,10 +57,10 @@ useEffect(()=>{
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
            {/* <Button color="secondary" onClick={handleStripeSubmit} >Go Pro</Button> */}
 
-            <Button color="inherit" href="/view-decks" >View Decks</Button>
+            <Link  href= 'view-decks' passHref><Button sx={{color:'white'}} >View Decks</Button></Link>
             {
             isLoaded && role==='pro' ?(
-            <Button color="inherit" href="/generate" >Generate</Button>):
+                <Link href="/generate" passHref><Button color="inherit" sx={{color:'white'}}> Generate</Button></Link>):
             <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
            }
            

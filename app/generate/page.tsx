@@ -9,6 +9,7 @@ import { db } from '@/firebase'
 import { AppBar, Box, Button, Container, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, Paper, Stack, TextField, Toolbar, Typography ,CircularProgress} from '@mui/material';
 import { FlashCard } from '../components/FlashCard';
 import {handleStripeSubmit} from '../lib/handleStripeSubmit'
+import Link from 'next/link';
 
 // const FlashCard = lazy(() => import('./FlashCard'));
 export default function GenerateFlashcards() {
@@ -130,7 +131,7 @@ console.log(loading)
             isLoaded && role==='basic' && 
             <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
            }
-            <Button color="inherit" href="/view-decks" >View Decks</Button>
+            <Link href='/view-decks' passHref><Button sx={{color:'white'}} >View Decks</Button></Link>
             <UserButton/>
             </Toolbar>
             

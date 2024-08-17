@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { UserButton, useUser } from "@clerk/nextjs"
 import {handleStripeSubmit} from '../lib/handleStripeSubmit'
 import {createRole} from '../lib/createRole'
+import Link from "next/link"
 
 export default function DeckPage(){
 const {isLoaded,isSignedIn,user} = useUser()
@@ -72,7 +73,8 @@ if(!isLoaded || !isSignedIn){
           
            {
            isLoaded && role==='pro' ?(
-            <Button color="inherit" href="/generate" >Generate</Button>):
+        
+            <Link href="/generate" passHref><Button color="inherit" sx={{color:'white'}}> Generate</Button></Link>):
             <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
            }
            
