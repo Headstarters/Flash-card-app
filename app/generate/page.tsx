@@ -8,6 +8,7 @@ import {collection,doc,getDocs,getDoc, writeBatch} from "firebase/firestore"
 import { db } from '@/firebase'
 import { AppBar, Box, Button, Container, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, Paper, Stack, TextField, Toolbar, Typography } from '@mui/material';
 import { FlashCard } from '../components/FlashCard';
+import {handleStripeSubmit} from '../lib/handleStripeSubmit'
 
 
 export default function GenerateFlashcards() {
@@ -18,7 +19,14 @@ export default function GenerateFlashcards() {
   const [topic,setTopic] = useState("")
   const [open,setOpen] = useState(false)
   const router = useRouter()
+  const role = user?.publicMetadata['role']
 
+  //route protection
+  if(isLoaded && role!='pro'){
+    return <>Subscribe to Pro plan</>
+  }
+
+ 
   const handleSubmit = async()=>{
     try{
     const flashcardResponse= await fetch("/api/generate-server",{
@@ -118,6 +126,7 @@ export default function GenerateFlashcards() {
                 
             <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
+           <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
             <Button color="inherit" href="/view-decks" >View Decks</Button>
             <UserButton/>
             </Toolbar>
@@ -150,7 +159,7 @@ export default function GenerateFlashcards() {
       >
         
 </TextField>
-    <Button variant='contained' onClick={handleSubmit} sx = {{mb:1}}>Submit</Button>
+    {/* <Button variant='contained' onClick={handleStripeSubmit} sx = {{mb:1}}>Submit</Button> */}
      
     {
       flashcards?.length>0 &&(

@@ -1,4 +1,5 @@
 'use client'
+// @ts-nocheck
 import { useState,useEffect } from "react"
 import { db } from "@/firebase"
 import { getDoc,getDocs,doc,collection } from "firebase/firestore"
@@ -6,7 +7,7 @@ import { Box,Container,AppBar,Toolbar,TextField,Typography, Button , Grid, Card,
 import { useRouter, useSearchParams } from "next/navigation"
 import { useUser,UserButton } from "@clerk/nextjs"
 import { FlashCard } from "../components/FlashCard"
-
+import {handleStripeSubmit} from '../lib/handleStripeSubmit'
 
 export default function FlashCardPage(){
 const {isLoaded,isSignedIn,user} = useUser()
@@ -14,6 +15,7 @@ const router = useRouter()
 const [flashCards,setFlashCards] = useState([])
 const [deckName,setDeckName] = useState('')
 const searchParams = useSearchParams()
+const role = user?.publicMetadata['role']
 
 const topic= searchParams.get('topic')
 if(!isLoaded || !isSignedIn){
@@ -52,8 +54,16 @@ useEffect(()=>{
                 
             <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
+           {/* <Button color="secondary" onClick={handleStripeSubmit} >Go Pro</Button> */}
+           <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
             <Button color="inherit" href="/view-decks" >View Decks</Button>
-            <Button color="inherit" href="/generate" >Generate</Button>
+            {
+            role==='pro' ?(
+            <Button color="inherit" href="/generate" >Generate</Button>):
+            <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
+           }
+           
+            
             <UserButton/>
             </Toolbar>
             

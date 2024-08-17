@@ -1,16 +1,35 @@
 'use client'
+// @ts-nocheck
 import { useState,useEffect } from "react"
 import { db } from "@/firebase"
 import { getDoc,getDocs,doc,collection } from "firebase/firestore"
 import { Box,Container,AppBar,Toolbar,TextField,Typography, Button , Grid, Card, CardActionArea, CardContent} from "@mui/material"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { UserButton, useUser } from "@clerk/nextjs"
-
+import {handleStripeSubmit} from '../lib/handleStripeSubmit'
+import {createRole} from '../lib/createRole'
 
 export default function DeckPage(){
 const {isLoaded,isSignedIn,user} = useUser()
 const router = useRouter()
 const [flashCards,setFlashCards] = useState([])
+const search = useSearchParams()
+const action = search.get('action')
+
+const role = user?.publicMetadata['role']
+//if user is signing up for first time. Need to create role or them
+
+useEffect(()=>{
+    const createRoleFromAction = async() =>{
+        if(isLoaded && action && user){
+           await createRole(user?.id,'basic')
+
+        }
+    } 
+    createRoleFromAction()
+})
+
+
 
 
 useEffect(()=>{
@@ -49,7 +68,14 @@ if(!isLoaded || !isSignedIn){
             <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
            {/* <Button color="inherit" href="/" >Home</Button> */}
-            <Button color="inherit" href="/generate" >Generate</Button>
+
+          
+           {
+            role==='pro' ?(
+            <Button color="inherit" href="/generate" >Generate</Button>):
+            <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
+           }
+           
             <UserButton/>
             </Toolbar>
             
