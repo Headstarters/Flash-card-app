@@ -7,7 +7,6 @@ export default function SignInPage() {
   return (
     <>
     <Container
-   
     >
         <AppBar position="static">
             <Toolbar>   
