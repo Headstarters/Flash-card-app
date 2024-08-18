@@ -36,16 +36,27 @@ import {
   } from "firebase/firestore";
   import { useRouter,useSearchParams } from "next/navigation";
   import { useEffect, useState } from "react";
+import { FlashCard } from "../components/FlashCard";
+
+type Deck = {
+    topic:string
+}
+
+//because when we are editing the name of the deck we only define the new topic 
+type EditDeck = {
+    oldTopic: string 
+    topic: string;
+  };
 
 
 export default function DeckPage(){
 const {isLoaded,isSignedIn,user} = useUser()
 const router = useRouter()
-const [flashCards,setFlashCards] = useState([])
+const [flashCards,setFlashCards] = useState<Deck[]>([])
 const [open, setOpen] = useState(false);
 const [newDecks, setNewDecks] = useState("");
 const [editOpen, setEditOpen] = useState(false);
-const [editingDeck, setEditingDeck] = useState(null);
+const [editingDeck, setEditingDeck] = useState<EditDeck | null >(null);
 const search = useSearchParams()
 const action = search.get('action')
 const role = user?.publicMetadata['role']
@@ -105,7 +116,7 @@ const handleOpen = () => setOpen(true);
     return <></>;
   }
 
-  const handleEditDeck = (deck) => {
+  const handleEditDeck = (deck:Deck) => {
     setEditingDeck({ oldTopic: deck.topic, topic: deck.topic });
     setEditOpen(true);
   };
@@ -163,7 +174,7 @@ const handleOpen = () => setOpen(true);
     }
   };
 
-  const handleDeleteDeck = async (deckId) => {
+  const handleDeleteDeck = async (deckId:string) => {
     if (!user) return;
     const userDocRef = doc(db, "users", user.id);
     await updateDoc(userDocRef, {
@@ -176,21 +187,19 @@ const handleOpen = () => setOpen(true);
     <>
       <Box>
         <AppBar position="static">
-            <Toolbar>   
-                
-            <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
-           {/*consider using Link to wrap this(?) because the href uses an a tag*/}
-           {/* <Button color="inherit" href="/" >Home</Button> */}
-           {
-           isLoaded && role==='pro' ?(
-        
-            <Link href="/generate" passHref><Button color="inherit" sx={{color:'white'}}> Generate</Button></Link>):
-            <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
-           }
-            <UserButton/>
-            </Toolbar>
-            
-          </AppBar>
+    <Toolbar>   
+        <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
+        <Button color="inherit" onClick={handleOpen} sx={{color:'white'}}>Add Decks</Button>
+        {isLoaded && role === 'pro' ? (
+        <Link href="/generate" passHref>
+            <Button color="inherit" sx={{color:'white'}}>Generate</Button>
+        </Link>
+        ) : (
+        <Button color="secondary" variant="contained" onClick={handleStripeSubmit}>Go Pro</Button> 
+        )}
+        <UserButton/>
+    </Toolbar>
+    </AppBar>
           </Box>
           <Grid container spacing={2} sx={{ mt: 2 }}>
         {flashCards.map((flashcard, index) => (
@@ -265,7 +274,7 @@ const handleOpen = () => setOpen(true);
             fullWidth
             value={editingDeck?.topic || ""}
             onChange={(e) =>
-              setEditingDeck({ ...editingDeck, topic: e.target.value })
+              setEditingDeck({ ...editingDeck, topic: e.target.value , oldTopic: editingDeck?.oldTopic || ""})
             }
           />
         </DialogContent>

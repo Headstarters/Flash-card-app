@@ -38,19 +38,23 @@ import {
     updateDoc,
   } from "firebase/firestore";
 
-
+type FlashCard = {
+  id?: string,
+  front: string,
+  back: string,
+}
 
 export default function FlashCardPage(){
 const {isLoaded,isSignedIn,user} = useUser()
 const router = useRouter()
-const [flashCards,setFlashCards] = useState([])
+const [flashCards,setFlashCards] = useState<FlashCard []>([])
 const [deckName,setDeckName] = useState('')
 const searchParams = useSearchParams()
 const [open, setOpen] = useState(false);
-  const [newCards, setNewCards] = useState([{ question: "", answer: "" }]);
+  const [newCards, setNewCards] = useState<FlashCard[]>([{ front: "", back: "" }]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editingCard, setEditingCard] = useState({
+  const [editingCard, setEditingCard] = useState<FlashCard | null>({
     id: "",
     front: "",
     back: "",
@@ -60,7 +64,7 @@ const [open, setOpen] = useState(false);
 
 
   const addCardInput = () => {
-    setNewCards([...newCards, { question: "", answer: "" }]);
+    setNewCards([...newCards, { front: "", back: "" }]);
   };
 
 
@@ -73,9 +77,10 @@ useEffect(()=>{
         const deckRef = doc(collection(db,'users'),user?.id)
         const flashCardRef = collection(deckRef,topic)
         const flashCardSnap = await getDocs(flashCardRef)
-        const flashCardsCollection = flashCardSnap.docs.map(doc=>({
+        const flashCardsCollection:FlashCard[] = flashCardSnap.docs.map(doc=>({
             id:doc.id,
-            ...doc.data()
+            front:doc.data().front,
+            back:doc.data().back
         })) 
     
         if(flashCardsCollection.length > 0){
@@ -93,23 +98,23 @@ if(!isLoaded || !isSignedIn){
 const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setNewCards([{ question: "", answer: "" }]);
+    setNewCards([{ front: "", back: "" }]);
   };
 
   const handleAddCards = async () => {
     if (!user || !topic) return;
     const validCards = newCards.filter(
-      (card) => card.question.trim() && card.answer.trim()
+      (card) => card.front.trim() && card.back.trim()
     );
 
     const deckRef = doc(collection(db, "users"), user.id);
     const cardRef = collection(deckRef, topic);
 
-    const newCardIds = [];
+    const newCardIds :string[]= [];
     for (const card of validCards) {
       const docRef = await addDoc(cardRef, {
-        front: card.question.trim(),
-        back: card.answer.trim(),
+        question: card.front.trim(),
+        answer: card.back.trim(),
       });
       newCardIds.push(docRef.id);
     }
@@ -118,20 +123,21 @@ const handleOpen = () => setOpen(true);
       ...prev,
       ...validCards.map((card, index) => ({
         id: newCardIds[index],
-        front: card.question,
-        back: card.answer,
+        front: card.front,
+        back: card.back,
       })),
     ]);
     handleClose();
   };
 
-  const handleCardInputChange = (index, field, value) => {
-    const updatedCards = [...newCards];
-    updatedCards[index][field] = value;
+  //keyof means we get the union of flashcard id | front  | back
+const handleCardInputChange = (index:number, field :keyof FlashCard, value:string) => {
+    const updatedCards :FlashCard[]= [...newCards];
+    updatedCards[index][field]  = value;
     setNewCards(updatedCards);
   };
 
-  const handleRemoveCard = async (cardId) => {
+  const handleRemoveCard = async (cardId:string) => {
     if (!user || !topic || !cardId) return;
     try {
       const deckRef = doc(collection(db, "users"), user.id);
@@ -144,7 +150,7 @@ const handleOpen = () => setOpen(true);
     }
   };
 
-  const handleEditOpen = (card) => {
+  const handleEditOpen = (card:FlashCard) => {
     setEditingCard(card);
     setEditOpen(true);
   };
@@ -155,7 +161,7 @@ const handleOpen = () => setOpen(true);
   };
 
   const handleEditCard = async () => {
-    if (!user || !topic || !editingCard) return;
+    if (!user || !topic || !editingCard || !editingCard.id) return;
     const deckRef = doc(collection(db, "users"), user.id);
     const cardRef = doc(deckRef, topic, editingCard.id);
     await updateDoc(cardRef, {
@@ -177,35 +183,31 @@ const handleOpen = () => setOpen(true);
   return (
     <>
       <Box>
-        <AppBar position="static">
-            <Toolbar>   
-                
-            <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
-           {/*consider using Link to wrap this(?) because the href uses an a tag*/}
-              {/*consider using Link to wrap this(?) because the href uses an a tag*/}
-           {/* <Button color="secondary" onClick={handleStripeSubmit} >Go Pro</Button> */}
-
-           <Link  href= 'view-decks' passHref><Button sx={{color:'white'}} >View Decks</Button></Link>
-            {
-            isLoaded && role==='pro' ?(
-                <Link href="/generate" passHref><Button color="inherit" sx={{color:'white'}}> Generate</Button></Link>):
-            <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
-           }
-            <UserButton/>
-            </Toolbar>
+      <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Flash Card App
+            </Typography>
+            <Link href="/view-decks" passHref ><Button sx={{color:'white'}}>View Decks</Button></Link>
+            <Button color="inherit" onClick={handleOpen}>Add Cards</Button>
+            {isLoaded && role === 'pro' &&
+            <Link href="/generate" passHref ><Button sx={{color:'white'}}>Generate</Button></Link>
+            }
             
-            
-          </AppBar>
+           
+            <UserButton />
+          </Toolbar>
+        </AppBar>
           </Box>
           
           <Grid container spacing={2} sx={{ mt: 2 }}>
-        {flashCards.map((flashcard, index) => (
+        { flashCards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Box position="relative">
               <FlashCard
                 front={flashcard["front"]}
                 back={flashcard["back"]}
-                onDelete={() => handleRemoveCard(flashcard.id)}
+                onDelete={() =>flashcard.id &&  handleRemoveCard(flashcard.id)}
                 onEdit={() => handleEditOpen(flashcard)}
               />
             </Box>
@@ -220,20 +222,20 @@ const handleOpen = () => setOpen(true);
               <TextField
                 fullWidth
                 margin="dense"
-                label="Question"
-                value={card.question}
+                label="Front"
+                value={card.front}
                 onChange={(e) =>
-                  handleCardInputChange(index, "question", e.target.value)
+                  handleCardInputChange(index, "front", e.target.value)
                 }
                 sx={{ mb: 1 }}
               />
               <TextField
                 fullWidth
                 margin="dense"
-                label="Answer"
-                value={card.answer}
+                label="Back"
+                value={card.back}
                 onChange={(e) =>
-                  handleCardInputChange(index, "answer", e.target.value)
+                  handleCardInputChange(index, "back", e.target.value)
                 }
               />
             </Box>
@@ -257,7 +259,7 @@ const handleOpen = () => setOpen(true);
             fullWidth
             value={editingCard?.front || ""}
             onChange={(e) =>
-              setEditingCard({ ...editingCard, front: e.target.value })
+              setEditingCard({ ...editingCard, front: e.target.value,back:'' })
             }
           />
           <TextField
@@ -266,7 +268,7 @@ const handleOpen = () => setOpen(true);
             fullWidth
             value={editingCard?.back || ""}
             onChange={(e) =>
-              setEditingCard({ ...editingCard, back: e.target.value })
+              setEditingCard({ ...editingCard, back: e.target.value ,front:''})
             }
           />
         </DialogContent>
