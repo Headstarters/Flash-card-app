@@ -11,28 +11,17 @@ import { SignedIn, SignedOut, SignIn, UserButton, RedirectToSignIn } from "@cler
 import { useUser } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation";
 import DeckPage from "./view-decks/page";
+import {handleStripeSubmit} from './lib/handleStripeSubmit'
+import Link from "next/link";
 //need to make sure certain content is only available on pro (ai generation)` 
+
 export default function Home() {
   const {isSignedIn} = useUser()
   const router = useRouter()
-
-
-  const handleSubmit = async () => {
-    const checkoutSession = await fetch('/api/stripe-session', {
-      method: 'POST',
-      headers: { origin: 'http://localhost:3000' },
-    })
-    const checkoutSessionJson = await checkoutSession.json()
   
-    const stripe = await getStripe()
-    const {error} = await stripe.redirectToCheckout({
-      sessionId: checkoutSessionJson.id,
-    })
+
+ 
   
-    if (error) {
-      console.warn(error.message)
-    }
-  }
   
   return (
     <>
@@ -50,7 +39,11 @@ export default function Home() {
     >
       <Head>
           <title>Flash Card App</title>
+
           <meta name="description" content="AI Flash Card App" />
+
+
+
       </Head>
       {/*made for toolbars. position static stays in place. Fixed moves with the page. Sticky is like a mix of both*/}
       
@@ -59,9 +52,11 @@ export default function Home() {
       <AppBar position="fixed" sx={{ width: '100%', background: "linear-gradient(to right, #b92b27 , #1565C0)" }}>
        <Toolbar>
        <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
-         {/* anythign imported in layout is available here. This is basically if signed in what it displays */}
-           <Button color="inherit" href="/sign-in">Sign In</Button>
-           <Button color="inherit" href="/sign-up">Sign Up</Button>
+           <Link href='/sign-in'  passHref><Button sx={{color:'white'}}>Sign In</Button></Link> 
+         <Link href = '/sign-up' passHref><Button sx={{color:'white'}}>Sign Up</Button></Link>
+         
+
+
        </Toolbar>
      </AppBar>
       <Box
@@ -178,7 +173,8 @@ export default function Home() {
             <Typography>
               Unlock advanced features including AI-powered card generation, unlimited storage, and priority support. Ideal for serious learners and professionals.
             </Typography>
-            <Button variant="contained" onClick={handleSubmit}>Go Pro</Button>
+
+             <Button variant="contained" href='view-decks'>Go Pro</Button> 
             </Card>
           </Grid>
         </Grid>
@@ -194,5 +190,6 @@ export default function Home() {
     
   );
 }
+
 
 

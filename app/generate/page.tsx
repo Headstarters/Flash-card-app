@@ -1,31 +1,49 @@
 'use client'
-import React from 'react'
+import React, { Suspense ,lazy} from 'react'
 import { UserButton, useUser } from "@clerk/nextjs";
 //similar to useNavigate in react router
 import {useRouter} from "next/navigation";
 import { useState ,useEffect} from "react";
 import {collection,doc,getDocs,getDoc, writeBatch} from "firebase/firestore"
 import { db } from '@/firebase'
-import { AppBar, Box, Button, Container, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, Paper, Stack, TextField, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Button, Container, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, Paper, Stack, TextField, Toolbar, Typography ,CircularProgress} from '@mui/material';
 import { FlashCard } from '../components/FlashCard';
+import {handleStripeSubmit} from '../lib/handleStripeSubmit'
+import Link from 'next/link';
 
-
+// const FlashCard = lazy(() => import('./FlashCard'));
 export default function GenerateFlashcards() {
+  
     const {isLoaded,isSignedIn,user} = useUser()
   const [flashcards,setFlashcards] = useState([])
   const [flipped, setFlipped] = useState<{ [key: number]: boolean }>({});
-  const [text,setText] = useState("")
+  const [details,setDetails] = useState("")
+  const [promptTopic,setPromptTopic] = useState("")
+  const [numFlashCards,setNumFlashCards] = useState(0)
   const [topic,setTopic] = useState("")
   const [open,setOpen] = useState(false)
+  const [loading,setloading] = useState(false)
   const router = useRouter()
+  const role = user?.publicMetadata['role']
+  
+  
+  //route protection
+  if(isLoaded && role!='pro'){
+    return <>Subscribe to Pro plan</>
+  }
 
+ 
   const handleSubmit = async()=>{
+    const prompt = `My topic is ${promptTopic} and extra details: ${details} and number of flashcards: ${numFlashCards}`
+    setloading(true)
     try{
     const flashcardResponse= await fetch("/api/generate-server",{
       method: "POST",
-      body: text
+      body: prompt
     })
+    
     const flashcardData = await flashcardResponse.json()
+    setloading(false)
     setFlashcards(flashcardData['flashcards'])
   }
   catch(error){
@@ -37,18 +55,7 @@ export default function GenerateFlashcards() {
 
     
   }
-  //not needed bc we are using flashcard component instead
-  // const handleCardClick = (id:number)=>{
-  //   //compute property names dynamically. [id] is like sayng index 0 for example. For example 0:false
-  //   setFlipped(prev => ({
-  //     ...prev,
-  //     [id]: !prev[id]
-  //   }))
-  //   //let's say index 0 is clicked. Currently we have an empty object. So we are saying 0: !undefinred which is 0:true
-  //   //clicking again will make it 0:false
-
-  // }
-  //open modal -> understand more !!
+ 
   const handleOpen = ()=>{
     setOpen(true)
   }
@@ -106,7 +113,9 @@ export default function GenerateFlashcards() {
   }
     // router.push("/flashcard")
   }
-
+  
+ 
+console.log(loading)
 
  
   return (
@@ -118,7 +127,11 @@ export default function GenerateFlashcards() {
                 
             <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
-            <Button color="inherit" href="/view-decks" >View Decks</Button>
+           {
+            isLoaded && role==='basic' && 
+            <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
+           }
+            <Link href='/view-decks' passHref><Button sx={{color:'white'}} >View Decks</Button></Link>
             <UserButton/>
             </Toolbar>
             
@@ -136,8 +149,13 @@ export default function GenerateFlashcards() {
        
       }}
       >
-      <Typography variant='h4'>Generate Flashcards</Typography>
-      <Typography sx={{fontStyle:'italic', mb:3}}>Enter a prompt for your flashcards</Typography>
+        
+      <Typography variant='h4' sx={{mb:3}}>Generate Flashcards</Typography>
+
+      <Stack direction={'row'} spacing={2} sx={{mb:2}}>
+      <TextField  label="topic" variant='standard'  type = 'standard'  onChange={e=>setPromptTopic(e.target.value)}/>
+      <TextField type = 'standard-number' variant='standard' label='#' sx={{width:100}} onChange={e=>setNumFlashCards(Number(e.target.value))}></TextField>
+      </Stack>
 
       <TextField
       multiline
@@ -145,21 +163,32 @@ export default function GenerateFlashcards() {
         width:{xs:370, sm: 600,md:800},
         mb:1
       }}
-      label='enter text'
-      onChange={e=>setText(e.target.value)}
+      label='Extra Details'
+      onChange={e=>setDetails(e.target.value)}
       >
         
 </TextField>
-    <Button variant='contained' onClick={handleSubmit} sx = {{mb:1}}>Submit</Button>
+     <Button variant='contained' onClick={handleSubmit} sx = {{mb:1}}>Submit</Button> 
      
-    {
+     {
+      loading?(
+        <Container maxWidth="sm" sx={{textAlign: 'center', mt: 4}}>
+        <CircularProgress />
+        <Typography variant="h6" sx={{mt: 2}}>
+          Loading...
+        </Typography>
+      </Container>
+      ):
+    (
       flashcards?.length>0 &&(
         <>
         <Typography sx={{fontStyle:'italic', mb:5}}>FlashCard Preview</Typography>
       <Grid container spacing={2}>
       {flashcards.map((flashcard,index)=>(
         <Grid item xs={12} sm={6} md={4} key = {index}>
+          {/* <Suspense fallback={<p>...Loading</p>}> */}
         <FlashCard front = {flashcard['front']} back = {flashcard['back']}/>
+        {/* </Suspense> */}
         </Grid>
       ))}
       </Grid>
@@ -167,7 +196,8 @@ export default function GenerateFlashcards() {
       </>
       )
       
-    }
+          
+  )}
       </Box>
       <Dialog open={open} onClose={handleClose} >
       <DialogTitle>Save FlashCards</DialogTitle>
