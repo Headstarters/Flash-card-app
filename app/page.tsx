@@ -1,40 +1,57 @@
 'use client'
-import theme from './theme';
 import CardContent from '@mui/material/CardContent';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline'
 import getStripe from "./util/get-stripe";
 import Container from '@mui/material/Container';
-import { AppBar, Card, Box, Button, Grid, Toolbar, Typography } from "@mui/material";
+import { AppBar, Card, Box, Button, Grid, Toolbar, Typography, IconButton, FormControlLabel, Switch} from "@mui/material";
 import Head from "next/head";
 import { SignedIn, SignedOut, SignIn, UserButton, RedirectToSignIn } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
 import { useRouter, usePathname } from "next/navigation";
 import DeckPage from "./view-decks/page";
 import {handleStripeSubmit} from './lib/handleStripeSubmit'
+import {useState,useEffect} from 'react'
+import {MultiColorMode} from './icons/nightmode'
 import Link from "next/link";
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+import { SignInModal,SignUpModal } from './components/Modal';
+
+import { lightTheme,darkTheme } from './theme';
 //need to make sure certain content is only available on pro (ai generation)` 
 
 export default function Home() {
   const {isSignedIn} = useUser()
   const router = useRouter()
-  
 
+  const [mode,setMode] = useState(()=>{
+    return localStorage.getItem('mode') || 'light'
+  })
+//local storage to persist across pages
+  const toggleMode = () => {
+    const newMode = mode === 'light' ? 'dark': 'light'
+    localStorage.setItem('mode',newMode)
+    setMode(newMode)
+  }
+ 
  
   
   
   return (
+    
     <>
-    <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <Container
+    <ThemeProvider theme={mode==='dark' ? darkTheme : lightTheme}>
+    <CssBaseline/>
+    <Box
     sx={{
-      fontFamily: "'Poppins', sans-serif",
-      backgroundColor: '#bbe7fc', // Apply your background color here
+      // fontFamily: "'Poppins', sans-serif",
+      // backgroundColor: '#000814', // Apply your background color here
       display: 'flex',
       flexDirection: 'column',
       maxWidth: '100%',
-      px: 0
+      px: 0,
+      // color: mode === 'light' ? 'black' : 'white',
+      // backgroundColor:mode ==='light'? '#bbe7fc' : '#000814'
     }}
     >
       <Head>
@@ -49,16 +66,22 @@ export default function Home() {
       
 
       <SignedOut>
-      <AppBar position="fixed" sx={{ width: '100%', background: "linear-gradient(to right, #b92b27 , #1565C0)" }}>
+      <AppBar position="fixed" sx={{ width: '100%', background: "linear-gradient(to right, #373B44 , #4286f4)" }}>
        <Toolbar>
        <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
-           <Link href='/sign-in'  passHref><Button sx={{color:'white'}}>Sign In</Button></Link> 
+       
+       <FormControlLabel
+              control={<Switch checked={mode==='dark'} onChange={toggleMode} />}
+              label={mode==='dark' ? "Dark Mode" : "Light Mode"}
+            />
+          {/* <Link href='/view-decks'  passHref><Button sx={{color:'white'}}>Sign In</Button></Link>  */}
+          <Link href = '/view-decks' passHref><Button sx={{color:'white'}}>Sign In</Button></Link>
          <Link href = '/sign-up' passHref><Button sx={{color:'white'}}>Sign Up</Button></Link>
-         
 
 
        </Toolbar>
      </AppBar>
+     
       <Box
       sx={{
         textAlign: "center",
@@ -70,17 +93,34 @@ export default function Home() {
         pt: 10
       }}
       >
-        <Typography variant="h3">FlashAce</Typography>
-        <Typography variant="h5">Create flash cards and study them</Typography>
+
+<Typography
+    variant='h1'
+    sx={{
+        fontWeight:'bold',
+        textAlign:'center',
+        background:'-webkit-linear-gradient(left, #2980B9, #6DD5FA,#FFFFFF)',
+        WebkitTextFillColor:'transparent',
+        WebkitBackgroundClip:'text',
+        lineHeight:1.4,
+        mt:'2rem',
+        fontSize:{xs:'6vh',md:'10vh',lg:'15vh'}
+
+
+    }}
+    >
+        Flash Ace
+    </Typography>
+        <Typography variant="h5">Create and study flash cards using AI </Typography>
         <Box sx ={{display:'flex',justifyContent:'center'}}> 
         <Button variant="contained" sx = {{mt: 1}} href='/view-decks'>Get Started</Button>
         </Box> 
       </Box>
     
         <Typography variant="h4" sx ={{mt: 3, mb:4, display: 'flex', justifyContent: 'center'}}>Features</Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx = {{color:'black'}}>
           <Grid item xs={12} md={4} className="grid-item-border">
-          <Card variant="outlined" sx={{height: '100%', 
+          <Card variant="outlined" sx={{height: '120%', 
             p: 2, 
             boxShadow: 3, 
             borderRadius: '16px', 
@@ -88,7 +128,12 @@ export default function Home() {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            textAlign: 'center' }}>
+            textAlign: 'center',
+            
+            
+            }}>
+
+          
             <Typography variant="h6">Easy Input Text</Typography>
             <Typography>
               You can easily input text and create flash cards. Try it now and see how quickly you can generate study materials!
@@ -96,7 +141,7 @@ export default function Home() {
             </Card>
           </Grid>
           <Grid item xs={12} md={4} className="grid-item-border">
-          <Card variant="outlined" sx={{height: '100%', 
+          <Card variant="outlined" sx={{height: '120%', 
             p: 2, 
             boxShadow: 3, 
             borderRadius: '16px', 
@@ -112,7 +157,7 @@ export default function Home() {
             </Card>
           </Grid>
           <Grid item xs={12} md={4} className="grid-item-border">
-          <Card variant="outlined" sx={{height: '100%', 
+          <Card variant="outlined" sx={{height: '120%', 
             p: 2, 
             boxShadow: 3, 
             borderRadius: '16px', 
@@ -131,7 +176,7 @@ export default function Home() {
 
       
         <Typography variant="h4" sx ={{display: 'flex', justifyContent: 'center', pt: 6}}>Pricing</Typography>
-        <Grid container spacing={2} justifyContent="center" sx={{marginBottom: '20px', padding: '20px',}}>
+        <Grid container spacing={10} justifyContent="center" sx={{marginBottom: '20px', padding: '20px', color:'black'}}>
           <Grid item xs={12} md={4}>
           <Card variant="outlined" sx={{height: '100%', 
             p: 2, 
@@ -153,7 +198,7 @@ export default function Home() {
             </Typography>
             </Card>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={4} >
           <Card variant="outlined" sx={{height: '100%', 
             p: 2, 
             boxShadow: 3, 
@@ -184,7 +229,7 @@ export default function Home() {
       <SignedIn>
         <DeckPage/>
       </SignedIn>
-    </Container>
+    </Box>
     </ThemeProvider>
     </>
     

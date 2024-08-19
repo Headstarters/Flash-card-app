@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/util/get-stripe.js", "app/page.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/util/get-stripe.js", "app/page.tsx", "app/icons/nightmode.jsx", "app/result/page.tsx"],
   "exclude": ["node_modules"]
 }

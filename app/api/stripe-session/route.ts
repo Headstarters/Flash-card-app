@@ -47,10 +47,9 @@ export async function POST(req) {
 }
 
 export async function GET(req) {
-  console.log('inside GET')
   const searchParams = req.nextUrl.searchParams
+  console.log(req.nextUrl.toString())
   const session_id = searchParams.get('session_id')
-  console.log(session_id)
 
   try {
     if (!session_id) {

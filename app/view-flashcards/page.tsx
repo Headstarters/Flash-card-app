@@ -9,6 +9,10 @@ import { FlashCard } from "../components/FlashCard"
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link"
+import {MultiColorMode} from '../icons/nightmode'
+import CssBaseline from '@mui/material/CssBaseline'
+import { ThemeProvider } from '@mui/material/styles';
+import { lightTheme,darkTheme } from '../theme';
 
 import {
     AppBar,
@@ -22,8 +26,10 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControlLabel,
     Grid,
     IconButton,
+    Switch,
     TextField,
     Toolbar,
     Typography,
@@ -60,6 +66,15 @@ const [open, setOpen] = useState(false);
     back: "",
   });
   const role = user?.publicMetadata['role']
+  const [mode,setMode] = useState(()=>{
+    return localStorage.getItem('mode') || 'light'
+  })
+//local storage to persist across pages
+  const toggleMode = () => {
+    const newMode = mode === 'light' ? 'dark': 'light'
+    localStorage.setItem('mode',newMode)
+    setMode(newMode)
+  }
 
 
 
@@ -182,12 +197,27 @@ const handleCardInputChange = (index:number, field :keyof FlashCard, value:strin
 
   return (
     <>
-      <Box>
+    <Box
+    sx={{
+      backgroundColor:mode ==='light'? '#bbe7fc' : '#000814',
+      minHeight: '100vh'
+    }}
+    >
+
+    
+      <Box
+      textAlign={'center'}
+      >
       <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Flash Card App
             </Typography>
+
+            <FormControlLabel
+              control={<Switch checked={mode==='dark'} onChange={toggleMode} color="secondary"/>}
+              label={mode==='dark' ? "Dark Mode" : "Light Mode"}
+            />
             <Link href="/view-decks" passHref ><Button sx={{color:'white'}}>View Decks</Button></Link>
             <Button color="inherit" onClick={handleOpen}>Add Cards</Button>
             {isLoaded && role === 'pro' &&
@@ -198,7 +228,9 @@ const handleCardInputChange = (index:number, field :keyof FlashCard, value:strin
             <UserButton />
           </Toolbar>
         </AppBar>
+
           </Box>
+          
           
           <Grid container spacing={2} sx={{ mt: 2 }}>
         { flashCards.map((flashcard, index) => (
@@ -277,7 +309,7 @@ const handleCardInputChange = (index:number, field :keyof FlashCard, value:strin
           <Button onClick={handleEditCard}>Save</Button>
         </DialogActions>
       </Dialog>
-
+      </Box>
         </>
     )
 }
