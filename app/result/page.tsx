@@ -67,7 +67,7 @@ export default function ResultPage() {
 
           // Upgrade the user's role
           upgradeRole(user?.id, 'pro');
-      
+          return <DeckPage/>
           // Navigate to '/view-decks' after upgrading the role
           
           
@@ -81,9 +81,7 @@ export default function ResultPage() {
         
             
          
-            if (isLoaded) {
-              return <DeckPage/>
-            }
+            
               // Cleanup the timer if the component unmounts
         
         
