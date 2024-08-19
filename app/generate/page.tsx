@@ -10,7 +10,7 @@ import { AppBar, Box, Button, Container, Dialog, DialogContent, DialogContentTex
 import { FlashCard } from '../components/FlashCard';
 import {handleStripeSubmit} from '../lib/handleStripeSubmit'
 import Link from 'next/link';
-import {MultiColorMode} from '../icons/nightmode'
+import {MultiColorMode} from '../icons/icons'
 import {IconButton} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles';

@@ -6,7 +6,7 @@ import { UserButton, useUser } from "@clerk/nextjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link"
-import {MultiColorMode} from '../icons/nightmode'
+import {MultiColorMode} from '../icons/icons'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles';
 import { lightTheme,darkTheme } from '../theme';

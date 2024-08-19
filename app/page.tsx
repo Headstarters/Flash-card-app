@@ -10,7 +10,7 @@ import { useRouter, usePathname } from "next/navigation";
 import DeckPage from "./view-decks/page";
 import {handleStripeSubmit} from './lib/handleStripeSubmit'
 import {useState,useEffect} from 'react'
-import {MultiColorMode} from './icons/nightmode'
+import {MultiColorMode} from './icons/icons'
 import Link from "next/link";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -226,11 +226,12 @@ export default function Home() {
 
 
       </SignedOut>
-      <SignedIn>
-        <DeckPage/>
-      </SignedIn>
+      
     </Box>
     </ThemeProvider>
+    <SignedIn>
+        <DeckPage/>
+      </SignedIn>
     </>
     
   );

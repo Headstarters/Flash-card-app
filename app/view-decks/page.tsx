@@ -1,16 +1,18 @@
 'use client'
 import { db } from "@/firebase"
-import { UserButton, useUser } from "@clerk/nextjs"
+import { UserButton,useUser } from "@clerk/nextjs"
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {createRole} from '../lib/createRole'
 import Link from "next/link"
 import {handleStripeSubmit} from '../lib/handleStripeSubmit'
-import {MultiColorMode} from '../icons/nightmode'
+import {MultiColorMode} from '../icons/icons'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles';
 import { lightTheme,darkTheme } from '../theme';
-
+import { CancelSubscriptionIcon } from "../icons/icons";
+import { DotIcon } from "../icons/icons";
+import { CancelSubscriptionPage } from "../components/CancelSubscription";
 import {
     AppBar,
     Box,
@@ -65,6 +67,7 @@ const [editingDeck, setEditingDeck] = useState<EditDeck | null >(null);
 const search = useSearchParams()
 const action = search.get('action')
 const role = user?.publicMetadata['role']
+console.log(role)
 const [mode,setMode] = useState(()=>{
   return localStorage.getItem('mode') || 'light'
 })
@@ -75,6 +78,7 @@ const toggleMode = () => {
   setMode(newMode)
 }
 
+//for signups we need to create a basic role
 useEffect(()=>{
     const createRoleFromAction = async() =>{
         if(isLoaded && action && user){
@@ -231,7 +235,14 @@ const handleOpen = () => setOpen(true);
          ) : ( 
         <Button color="secondary" variant="contained" onClick={handleStripeSubmit}>Go Pro</Button> 
        )} 
-        <UserButton/>
+        <UserButton>
+          { role === 'pro' &&(
+        <UserButton.UserProfilePage label="Cancel Subscription" url="cancel-subscription" labelIcon={<DotIcon/>}>
+          <CancelSubscriptionPage/>
+        </UserButton.UserProfilePage>
+          )}
+        </UserButton>
+         
     </Toolbar>
     </AppBar>
 
