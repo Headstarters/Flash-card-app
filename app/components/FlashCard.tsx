@@ -3,17 +3,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import { Box, Card, CardContent, IconButton, Typography } from "@mui/material";
 import { relative } from "path";
 import React, { useState } from "react";
-export const FlashCard = ({
-  front,
-  back,
-  onDelete,
-  onEdit,
-}: {
+type FlashCardProp = {
+  id?: string;
   front: string;
   back: string;
-  onDelete: () => void;
-  onEdit: () => void;
-}) => {
+  onDelete?: () => void;
+  onEdit?: () => void;
+};
+
+export const FlashCard = ({front,back, onDelete,onEdit,}: FlashCardProp) => {
   const [flipped, setFlipped] = useState(false);
   const handleFlip = () => {
     setFlipped(!flipped);
@@ -21,9 +19,13 @@ export const FlashCard = ({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDelete();
+    if(onDelete){
+      onDelete();
+    }
+   
   };
-
+  console.log(front)
+  console.log(back)
   return (
     <>
       <Box>

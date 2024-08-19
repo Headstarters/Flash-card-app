@@ -8,7 +8,7 @@ import {changeRole} from '../lib/createRole'
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import path from "path";
-import DeckPage from "../view-decks/page";
+// import DeckPage from "../view-decks/page";
 
 export default function ResultPage() {
     const router = useRouter()
@@ -69,9 +69,13 @@ export default function ResultPage() {
 
           // Upgrade the user's role
           changeRole(user?.id, 'pro');
-          if(role === 'pro'){
-          return <DeckPage/>
-          }
+          
+          router.push('/')
+          setTimeout(()=>{
+            if (typeof window !== "undefined") {
+              window.location.reload();
+            }
+          },5000)
         }
          
           // Navigate to '/view-decks' after upgrading the role

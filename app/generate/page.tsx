@@ -15,6 +15,7 @@ import {IconButton} from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles';
 import { lightTheme,darkTheme } from '../theme';
+import { UpdatedUserButton } from '../components/updatedUserButton';
 
 // const FlashCard = lazy(() => import('./FlashCard'));
 export default function GenerateFlashcards() {
@@ -158,7 +159,7 @@ export default function GenerateFlashcards() {
             isLoaded && role==='basic' && 
             <Button color="secondary" variant="contained" onClick={handleStripeSubmit} >Go Pro</Button> 
            }
-            <Link href='/view-decks' passHref><Button sx={{color:'white'}} >View Decks</Button></Link>
+            <Link href='/' passHref><Button sx={{color:'white'}} >View Decks</Button></Link>
             <UserButton/>
             </Toolbar>
             

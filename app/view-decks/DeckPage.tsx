@@ -13,6 +13,7 @@ import { lightTheme,darkTheme } from '../theme';
 import { CancelSubscriptionIcon } from "../icons/icons";
 import { DotIcon } from "../icons/icons";
 import { CancelSubscriptionPage } from "../components/CancelSubscription";
+import { UpdatedUserButton } from "../components/updatedUserButton";
 import {
     AppBar,
     Box,
@@ -56,7 +57,7 @@ type EditDeck = {
   };
 
 
-export default function DeckPage(){
+export  const DeckPage = ()=>{
 const {isLoaded,isSignedIn,user} = useUser()
 const router = useRouter()
 const [flashCards,setFlashCards] = useState<Deck[]>([])
@@ -67,7 +68,7 @@ const [editingDeck, setEditingDeck] = useState<EditDeck | null >(null);
 const search = useSearchParams()
 const action = search.get('action')
 const role = user?.publicMetadata['role']
-console.log(role)
+const [loading,SetLoading] = useState(false)
 const [mode,setMode] = useState(()=>{
   return localStorage.getItem('mode') || 'light'
 })
@@ -77,7 +78,7 @@ const toggleMode = () => {
   localStorage.setItem('mode',newMode)
   setMode(newMode)
 }
-
+console.log(role)
 //for signups we need to create a basic role
 useEffect(()=>{
     const createRoleFromAction = async() =>{
@@ -89,11 +90,13 @@ useEffect(()=>{
     createRoleFromAction()
 })
 useEffect(()=>{
+  SetLoading(true)
     const getDecks = async ()=>{
         if(!user) return
     
         const deckRef = doc(collection(db,'users'),user?.id)
         const deckSnap = await getDoc(deckRef)
+        SetLoading(false)
         const decks = deckSnap?.data()?.flashcards || []
         if(decks.length > 0){
             setFlashCards(decks)
@@ -145,7 +148,6 @@ const handleOpen = () => setOpen(true);
   };
 
   const handleEditDeckSave = async () => {
-    console.log("Saving edit:", editingDeck);
     if (!user || !editingDeck) return;
     const userDocRef = doc(db, "users", user.id);
     const updatedFlashCards = flashCards.map((deck) =>
@@ -183,7 +185,6 @@ const handleOpen = () => setOpen(true);
 
       await batch.commit();
 
-      console.log("Firestore update successful");
       setFlashCards(updatedFlashCards);
       handleEditClose();
     } catch (error) {
@@ -235,13 +236,7 @@ const handleOpen = () => setOpen(true);
          ) : ( 
         <Button color="secondary" variant="contained" onClick={handleStripeSubmit}>Go Pro</Button> 
        )} 
-        <UserButton>
-          { role === 'pro' &&(
-        <UserButton.UserProfilePage label="Cancel Subscription" url="cancel-subscription" labelIcon={<DotIcon/>}>
-          <CancelSubscriptionPage/>
-        </UserButton.UserProfilePage>
-          )}
-        </UserButton>
+        <UpdatedUserButton/>
          
     </Toolbar>
     </AppBar>
@@ -260,7 +255,7 @@ const handleOpen = () => setOpen(true);
 
           </Box>
           {
-            isLoaded && flashCards.length === 0 &&
+            !loading && flashCards.length === 0 &&
             <Box sx={{textAlign:'center'}}>
              
               <Typography variant="h5" sx={{ mt: 5 , color:'white'}}>

@@ -7,6 +7,8 @@ import {
   Box,
   Button,
   Container,
+  FormControlLabel,
+  Switch,
   Toolbar,
   Typography,
 } from "@mui/material";
@@ -15,7 +17,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FlashCardCarousel } from "../components/FlashCardCarousel";
-
+import { ThemeProvider ,CssBaseline} from "@mui/material";
+import { lightTheme, darkTheme } from '../theme';
 type FlashCard = {
   id?: string;
   front: string;
@@ -28,6 +31,15 @@ export default function StudyPage() {
   const searchParams = useSearchParams();
   const [flashCards, setFlashCards] = useState<FlashCard[]>([]);
   const topic = searchParams.get("topic");
+  const [mode,setMode] = useState(()=>{
+    return localStorage.getItem('mode') || 'light'
+  })
+//local storage to persist across pages
+  const toggleMode = () => {
+    const newMode = mode === 'light' ? 'dark': 'light'
+    localStorage.setItem('mode',newMode)
+    setMode(newMode)
+  }
 
   useEffect(() => {
     const getFlashCards = async () => {
@@ -54,17 +66,32 @@ export default function StudyPage() {
   }
 
   return (
-    <Container>
-      <Box>
+    <>
+    <Box
+     sx={{
+      backgroundColor:mode ==='light'? '#bbe7fc' : '#000814',
+      minHeight: '100vh'
+    }}
+    >
+
+    
+      <Box
+     
+      >
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Study: {topic}
             </Typography>
+            
+            <FormControlLabel
+              control={<Switch checked={mode==='dark'} onChange={toggleMode} color="secondary"/>}
+              label={mode==='dark' ? "Dark Mode" : "Light Mode"}
+            />
             <Link href={`/view-flashcards?topic=${topic}`} passHref>
               <Button sx={{ color: "white" }}>Back to Flashcards</Button>
             </Link>
-            <Link href="/view-decks" passHref>
+            <Link href="/" passHref>
               <Button sx={{ color: "white" }}>View Decks</Button>
             </Link>
           </Toolbar>
@@ -73,6 +100,7 @@ export default function StudyPage() {
       <Box sx={{ mt: 4 }}>
         <FlashCardCarousel flashCards={flashCards} />
       </Box>
-    </Container>
+      </Box>
+      </>
   );
 }
