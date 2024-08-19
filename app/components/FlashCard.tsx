@@ -41,6 +41,9 @@ export const FlashCard = ({
               transformStyle: "preserve-3d",
               transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
             },
+            ":hover": {
+              boxShadow: '0 4px 8px 0 rgba(255, 0, 0,1.5)',
+            },
           }}
         >
           <div>
@@ -60,12 +63,13 @@ export const FlashCard = ({
                 top: 30,
               }}
             >
-              <Typography>{front}</Typography>
+              <Typography sx={{mb:5}}>{front}</Typography>
               <Box
                 sx={{
                   display: "flex",
                   justifyContent: "center",
                   width: "100%",
+                  
                 }}
               >
                 <IconButton

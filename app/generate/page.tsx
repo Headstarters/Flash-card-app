@@ -6,10 +6,15 @@ import {useRouter} from "next/navigation";
 import { useState ,useEffect} from "react";
 import {collection,doc,getDocs,getDoc, writeBatch} from "firebase/firestore"
 import { db } from '@/firebase'
-import { AppBar, Box, Button, Container, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, Paper, Stack, TextField, Toolbar, Typography ,CircularProgress} from '@mui/material';
+import { AppBar, Box, Button, Container, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, Paper, Stack, TextField, Toolbar, Typography ,CircularProgress, FormControlLabel, Switch} from '@mui/material';
 import { FlashCard } from '../components/FlashCard';
 import {handleStripeSubmit} from '../lib/handleStripeSubmit'
 import Link from 'next/link';
+import {MultiColorMode} from '../icons/nightmode'
+import {IconButton} from '@mui/material'
+import CssBaseline from '@mui/material/CssBaseline'
+import { ThemeProvider } from '@mui/material/styles';
+import { lightTheme,darkTheme } from '../theme';
 
 // const FlashCard = lazy(() => import('./FlashCard'));
 export default function GenerateFlashcards() {
@@ -25,6 +30,15 @@ export default function GenerateFlashcards() {
   const [loading,setloading] = useState(false)
   const router = useRouter()
   const role = user?.publicMetadata['role']
+  const [mode,setMode] = useState(()=>{
+    return localStorage.getItem('mode') || 'light'
+  })
+//local storage to persist across pages
+  const toggleMode = () => {
+    const newMode = mode === 'light' ? 'dark': 'light'
+    localStorage.setItem('mode',newMode)
+    setMode(newMode)
+  }
   
   
   //route protection
@@ -115,17 +129,30 @@ export default function GenerateFlashcards() {
   }
   
  
-console.log(loading)
 
  
   return (
     <>
-    <Container>
-      <Box>
+     <ThemeProvider theme={mode==='dark' ? darkTheme : lightTheme}>
+    <CssBaseline/> 
+    <Box
+    sx={{
+      color: mode === 'light' ? 'black' : 'white',
+
+    }}
+    >
+      <Box
+      
+      >
     <AppBar position="static">
             <Toolbar>   
                 
             <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
+
+            <FormControlLabel
+              control={<Switch checked={mode==='dark'} onChange={toggleMode} color="secondary"/>}
+              label={mode==='dark' ? "Dark Mode" : "Light Mode"}
+            />
            {/*consider using Link to wrap this(?) because the href uses an a tag*/}
            {
             isLoaded && role==='basic' && 
@@ -149,19 +176,22 @@ console.log(loading)
        
       }}
       >
+
         
       <Typography variant='h4' sx={{mb:3}}>Generate Flashcards</Typography>
 
       <Stack direction={'row'} spacing={2} sx={{mb:2}}>
-      <TextField  label="topic" variant='standard'  type = 'standard'  onChange={e=>setPromptTopic(e.target.value)}/>
-      <TextField type = 'standard-number' variant='standard' label='#' sx={{width:100}} onChange={e=>setNumFlashCards(Number(e.target.value))}></TextField>
+        <TextField label = 'topic' onChange={e=>setPromptTopic(e.target.value) }/>
+          <TextField label ='#' type='number' onChange={e=>setNumFlashCards(Number(e.target.value))}/>
+     
       </Stack>
 
       <TextField
       multiline
       sx={{
         width:{xs:370, sm: 600,md:800},
-        mb:1
+        mb:1,
+
       }}
       label='Extra Details'
       onChange={e=>setDetails(e.target.value)}
@@ -215,7 +245,8 @@ console.log(loading)
       </DialogContent>
       </Dialog>
       
-    </Container>
+    </Box>
+    </ThemeProvider>
     </>
   )
 }

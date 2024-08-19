@@ -5,38 +5,42 @@ import { db } from "@/firebase";
 import { UserButton, useUser } from "@clerk/nextjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { FlashCard } from "../components/FlashCard";
+import Link from "next/link"
+import {MultiColorMode} from '../icons/nightmode'
+import CssBaseline from '@mui/material/CssBaseline'
+import { ThemeProvider } from '@mui/material/styles';
+import { lightTheme,darkTheme } from '../theme';
 
 import {
-  AppBar,
-  Box,
-  Button,
-  Card,
-  CardActionArea,
-  CardContent,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  IconButton,
-  TextField,
-  Toolbar,
-  Typography,
-} from "@mui/material";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
+    AppBar,
+    Box,
+    Button,
+    Card,
+    CardActionArea,
+    CardContent,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControlLabel,
+    Grid,
+    IconButton,
+    Switch,
+    TextField,
+    Toolbar,
+    Typography,
+  } from "@mui/material";
+  import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    updateDoc,
+  } from "firebase/firestore";
+
 
 type FlashCard = {
   id?: string;
@@ -61,7 +65,20 @@ export default function FlashCardPage() {
     front: "",
     back: "",
   });
-  const role = user?.publicMetadata["role"];
+
+  const role = user?.publicMetadata['role']
+  const [mode,setMode] = useState(()=>{
+    return localStorage.getItem('mode') || 'light'
+  })
+//local storage to persist across pages
+  const toggleMode = () => {
+    const newMode = mode === 'light' ? 'dark': 'light'
+    localStorage.setItem('mode',newMode)
+    setMode(newMode)
+  }
+
+
+
 
   const addCardInput = () => {
     setNewCards([...newCards, { front: "", back: "" }]);
@@ -183,29 +200,40 @@ export default function FlashCardPage() {
 
   return (
     <>
-      <Box>
-        <AppBar position="static">
+
+    <Box
+    sx={{
+      backgroundColor:mode ==='light'? '#bbe7fc' : '#000814',
+      minHeight: '100vh'
+    }}
+    >
+
+    
+      <Box
+      textAlign={'center'}
+      >
+      <AppBar position="static">
+
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Flash Card App
             </Typography>
-            <Link href="/view-decks" passHref>
-              <Button sx={{ color: "white" }}>View Decks</Button>
-            </Link>
-            <Button color="inherit" onClick={handleOpen}>
-              Add Cards
-            </Button>
-            {isLoaded && role === "pro" && (
-              <Link href="/generate" passHref>
-                <Button sx={{ color: "white" }}>Generate</Button>
-              </Link>
-            )}
 
+            <FormControlLabel
+              control={<Switch checked={mode==='dark'} onChange={toggleMode} color="secondary"/>}
+              label={mode==='dark' ? "Dark Mode" : "Light Mode"}
+            />
+            <Link href="/view-decks" passHref ><Button sx={{color:'white'}}>View Decks</Button></Link>
+            <Button color="inherit" onClick={handleOpen}>Add Cards</Button>
+            {isLoaded && role === 'pro' &&
+            <Link href="/generate" passHref ><Button sx={{color:'white'}}>Generate</Button></Link>
+            }
+            
+           
             <UserButton />
           </Toolbar>
-                 
-        </AppBar>
-        <Box sx={{ mt: 2, mb: 2 }}>
+        </AppBar>
+          <Box sx={{ mt: 2, mb: 2 }}>
           <Button
             variant="contained"
             color="primary"
@@ -214,10 +242,12 @@ export default function FlashCardPage() {
             Study
           </Button>
         </Box>
-      </Box>
+          </Box>
+          
+          
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+        { flashCards.map((flashcard, index) => (
 
-      <Grid container spacing={2} sx={{ mt: 2 }}>
-        {flashCards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Box position="relative">
               <FlashCard
@@ -301,6 +331,9 @@ export default function FlashCardPage() {
           <Button onClick={handleEditCard}>Save</Button>
         </DialogActions>
       </Dialog>
-    </>
-  );
+
+      </Box>
+        </>
+    )
 }
+

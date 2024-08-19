@@ -6,7 +6,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import {createRole} from '../lib/createRole'
 import Link from "next/link"
 import {handleStripeSubmit} from '../lib/handleStripeSubmit'
-
+import {MultiColorMode} from '../icons/nightmode'
+import CssBaseline from '@mui/material/CssBaseline'
+import { ThemeProvider } from '@mui/material/styles';
+import { lightTheme,darkTheme } from '../theme';
 
 import {
     AppBar,
@@ -19,8 +22,10 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControlLabel,
     Grid,
     IconButton,
+    Switch,
     TextField,
     Toolbar,
     Typography,
@@ -60,6 +65,15 @@ const [editingDeck, setEditingDeck] = useState<EditDeck | null >(null);
 const search = useSearchParams()
 const action = search.get('action')
 const role = user?.publicMetadata['role']
+const [mode,setMode] = useState(()=>{
+  return localStorage.getItem('mode') || 'light'
+})
+//local storage to persist across pages
+const toggleMode = () => {
+  const newMode = mode === 'light' ? 'dark': 'light'
+  localStorage.setItem('mode',newMode)
+  setMode(newMode)
+}
 
 useEffect(()=>{
     const createRoleFromAction = async() =>{
@@ -183,28 +197,73 @@ const handleOpen = () => setOpen(true);
     setFlashCards((prev) => prev.filter((deck) => deck.topic !== deckId));
   };
 
+
   return (
     <>
-      <Box>
+    
+    {/* <ThemeProvider theme={mode==='dark' ? darkTheme : lightTheme}>
+    <CssBaseline/> */}
+    <Box
+    sx={{
+      backgroundColor:mode ==='light'? '#bbe7fc' : '#000814',
+      minHeight: '100vh'
+    }}
+    >
+      <Box
+        sx={{
+          textAlign: "center",
+          justifyContent: "center",
+        }}
+      >
         <AppBar position="static">
     <Toolbar>   
         <Typography variant="h6" sx={{flexGrow: 1}}>Flash Card App</Typography>
+
+        <FormControlLabel
+              control={<Switch checked={mode==='dark'} onChange={toggleMode} color="secondary"/>}
+              label={mode==='dark' ? "Dark Mode" : "Light Mode"}
+            />
         <Button color="inherit" onClick={handleOpen} sx={{color:'white'}}>Add Decks</Button>
-        {isLoaded && role === 'pro' ? (
+         {isLoaded && role === 'pro' ? ( 
         <Link href="/generate" passHref>
             <Button color="inherit" sx={{color:'white'}}>Generate</Button>
         </Link>
-        ) : (
+         ) : ( 
         <Button color="secondary" variant="contained" onClick={handleStripeSubmit}>Go Pro</Button> 
-        )}
+       )} 
         <UserButton/>
     </Toolbar>
     </AppBar>
+
+    
           </Box>
+          <Box 
+          sx={{
+            display: "flex",
+            textAlign: "center",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          >
+
+          </Box>
+          {
+            flashCards.length === 0 &&
+            <Box sx={{textAlign:'center'}}>
+             
+              <Typography variant="h5" sx={{ mt: 5 , color:'white'}}>
+                No decks found. Click on "Add Decks" to get started.
+              </Typography>
+              </Box>
+}
+          
+          
           <Grid container spacing={2} sx={{ mt: 2 }}>
         {flashCards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card sx={{ cursor: "pointer", position: "relative" }}>
+            <Card sx={{ cursor: "pointer", position: "relative",':hover':{ boxShadow: '0 4px 8px 0 rgba(255, 0, 0,1)', // Red shadow on hover
+} }} >
               <CardContent onClick={() => viewDeck(flashcard.topic)}>
                 <Typography>{flashcard.topic}</Typography>
               </CardContent>
@@ -283,6 +342,9 @@ const handleOpen = () => setOpen(true);
           <Button onClick={handleEditDeckSave}>Save</Button>
         </DialogActions>
       </Dialog>
+      </Box>
+      {/* </ThemeProvider> */}
         </>
+        
     )
 }

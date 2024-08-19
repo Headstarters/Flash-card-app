@@ -1,26 +1,33 @@
 'use client'
 // @ts-nocheck
 
-import { useRouter,useSearchParams  } from "next/navigation"
+import { useRouter,useSearchParams, usePathname  } from "next/navigation"
 import { useState ,useEffect} from "react"
-import { CircularProgress ,Container, Typography,Box} from '@mui/material';
+import { CircularProgress ,Container, Typography,Box, Button} from '@mui/material';
 import {upgradeRole} from '../lib/createRole'
 import { useUser } from "@clerk/nextjs";
+import Link from "next/link";
+import path from "path";
+import DeckPage from "../view-decks/page";
+
 export default function ResultPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [session, setSession] = useState(null)
     const [error, setError] = useState('')
-    const {user} = useUser()
+    const {user,isLoaded} = useUser()
     const searchParams = useSearchParams()
     const session_id = searchParams.get('session_id')
-    
+    const pathname = usePathname()
     useEffect(() => {
         const fetchCheckoutSession = async () => {
+          console.log(pathname)
           if (!session_id) return
           try {
+            
             const res = await fetch(`/api/stripe-session?session_id=${session_id}`)
             const sessionData = await res.json()
+            console.log(pathname)
             if (res.ok) {
               setSession(sessionData)
             } else {
@@ -54,45 +61,65 @@ export default function ResultPage() {
           </Container>
         )
       } 
-      
      
       
-        if (session && session.payment_status === 'paid') {
+        if ( session && session.payment_status === 'paid') {
+
           // Upgrade the user's role
           upgradeRole(user?.id, 'pro');
       
           // Navigate to '/view-decks' after upgrading the role
-          router.push('/view-decks');
+          
+          
         }
-      
+       
+         
+          // if (pathname.includes('/view-decksresult')) {
+          //   // Remove the '/view-decksresult' segment
+          //   router.push('/view-decks')
+          // }
+        
+            
+         
+            if (isLoaded) {
+              return <DeckPage/>
+            }
+              // Cleanup the timer if the component unmounts
+        
+        
+       
      
          
       
       
     return (
-        <Container maxWidth="sm" sx={{textAlign: 'center', mt: 4}}>
-          {session?.payment_status === 'paid' ? (
-            <>
+      <>
+    
+          {  session?.payment_status === 'paid' ? (
+           <>
+           <Box sx={{textAlign: 'center',backgroundColor:'#bbe7fc',minHeight: '100vh'}}>
               <Typography variant="h4">Thank you for your purchase!</Typography>
-              <Box sx={{mt: 2}}>
-                <Typography variant="h6">Session ID: {session_id}</Typography>
-                <Typography variant="body1">
-                  We have received your payment. You will receive an email with the
-                  order details shortly.
+              
+            
+                <Typography variant="body1" sx= {{mb:2}}>
+                  We have received your payment.You will be redirected shortly or click below to get back to your flashcards.
                 </Typography>
+            
               </Box>
-            </>
+             </>
           ) : (
             <>
+            <Box>
               <Typography variant="h4">Payment failed</Typography>
-              <Box sx={{mt: 2}}>
                 <Typography variant="body1">
                   Your payment was not successful. Please try again.
                 </Typography>
               </Box>
             </>
           )}
-        </Container>
+
+          </>
+        
       )
       
   }
