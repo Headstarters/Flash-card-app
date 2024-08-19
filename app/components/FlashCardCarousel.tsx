@@ -1,6 +1,17 @@
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React, { useState } from "react";
 import { FlashCard } from "./FlashCard";
 
@@ -12,10 +23,14 @@ type FlashCard = {
 
 type FlashCardCarouselProps = {
   flashCards: FlashCard[];
+  onDelete: (id: string) => void;
+  onEdit: (card: FlashCard) => void;
 };
 
 export const FlashCardCarousel: React.FC<FlashCardCarouselProps> = ({
   flashCards,
+  onDelete,
+  onEdit,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -43,7 +58,12 @@ export const FlashCardCarousel: React.FC<FlashCardCarouselProps> = ({
     <Box
       sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
-      <FlashCard front = {flashCards[currentIndex]['front']} back = {flashCards[currentIndex]['back']}/>
+      <FlashCard
+        front={flashCards[currentIndex]["front"]}
+        back={flashCards[currentIndex]["back"]}
+        onDelete={() => onDelete(flashCards[currentIndex].id)}
+        onEdit={() => onEdit(flashCards[currentIndex])}
+      />
       <Box sx={{ mt: 2, display: "flex", justifyContent: "center", gap: 2 }}>
         <Button onClick={handlePrevious} startIcon={<ArrowBackIosNewIcon />}>
           Previous

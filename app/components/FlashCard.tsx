@@ -11,21 +11,22 @@ type FlashCardProp = {
   onEdit?: () => void;
 };
 
-export const FlashCard = ({front,back, onDelete,onEdit,}: FlashCardProp) => {
+export const FlashCard = ({ front, back, onDelete, onEdit }: FlashCardProp) => {
   const [flipped, setFlipped] = useState(false);
-  const handleFlip = () => {
+  //Prevent flipping when editing
+  const handleFlip = (e: React.MouseEvent) => {
+    if (e.target instanceof HTMLButtonElement) return;
     setFlipped(!flipped);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if(onDelete){
+    if (onDelete) {
       onDelete();
     }
-   
   };
-  console.log(front)
-  console.log(back)
+  console.log(front);
+  console.log(back);
   return (
     <>
       <Box>
@@ -44,7 +45,7 @@ export const FlashCard = ({front,back, onDelete,onEdit,}: FlashCardProp) => {
               transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
             },
             ":hover": {
-              boxShadow: '0 4px 8px 0 rgba(255, 0, 0,1.5)',
+              boxShadow: "0 4px 8px 0 rgba(255, 0, 0,1.5)",
             },
           }}
         >
@@ -65,13 +66,12 @@ export const FlashCard = ({front,back, onDelete,onEdit,}: FlashCardProp) => {
                 top: 30,
               }}
             >
-              <Typography sx={{mb:5}}>{front}</Typography>
+              <Typography sx={{ mb: 5 }}>{front}</Typography>
               <Box
                 sx={{
                   display: "flex",
                   justifyContent: "center",
                   width: "100%",
-                  
                 }}
               >
                 <IconButton
