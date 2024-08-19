@@ -6,7 +6,7 @@ import { UserButton, useUser } from "@clerk/nextjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import Link from "next/link"
-import {MultiColorMode} from '../icons/nightmode'
+import {MultiColorMode} from '../icons/icons'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles';
 import { lightTheme,darkTheme } from '../theme';
@@ -42,6 +42,7 @@ import {
     getDocs,
     updateDoc,
   } from "firebase/firestore";
+import { UpdatedUserButton } from "../components/updatedUserButton";
 
 
 type FlashCard = {
@@ -225,14 +226,14 @@ export default function FlashCardPage() {
               control={<Switch checked={mode==='dark'} onChange={toggleMode} color="secondary"/>}
               label={mode==='dark' ? "Dark Mode" : "Light Mode"}
             />
-            <Link href="/view-decks" passHref ><Button sx={{color:'white'}}>View Decks</Button></Link>
+            <Link href="/" passHref ><Button sx={{color:'white'}}>View Decks</Button></Link>
             <Button color="inherit" onClick={handleOpen}>Add Cards</Button>
             {isLoaded && role === 'pro' &&
             <Link href="/generate" passHref ><Button sx={{color:'white'}}>Generate</Button></Link>
             }
             
            
-            <UserButton />
+            <UpdatedUserButton/>
           </Toolbar>
         </AppBar>
           <Box sx={{ mt: 2, mb: 2 }}>

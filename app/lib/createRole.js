@@ -7,7 +7,7 @@ export const  createRole = async (userId, role) =>{
     });
   }
 
-  export const  upgradeRole = async (userId, role) =>{
+  export const  changeRole = async (userId, role) =>{
 
     await fetch('/api/roles', {
       method: 'PUT',

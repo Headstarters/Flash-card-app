@@ -1,23 +1,63 @@
 'use client'
-import CardContent from '@mui/material/CardContent';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import Head from 'next/head';
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+// Firebase and Firestore imports
+import { db } from "@/firebase";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  writeBatch,
+} from "firebase/firestore";
+
+// Material-UI imports
+import {
+  AppBar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  CssBaseline,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  Switch,
+  TextField,
+  Toolbar,
+  Typography,
+  ThemeProvider,
+} from "@mui/material";
+import { lightTheme, darkTheme } from './theme';
+
+// Clerk.js imports
+import { UserButton, useUser, SignedIn, SignedOut, SignIn, RedirectToSignIn } from "@clerk/nextjs";
+
+// Icons imports
+import { MultiColorMode, CancelSubscriptionIcon, DotIcon } from './icons/icons';
+
+// Components
+import { FlashCard } from "./components/FlashCard";
+import { CancelSubscriptionPage } from "./components/CancelSubscription";
+import { SignInModal, SignUpModal } from './components/Modal';
+
+// Utility imports
+import { createRole } from './lib/createRole';
+import { handleStripeSubmit } from './lib/handleStripeSubmit';
 import getStripe from "./util/get-stripe";
-import Container from '@mui/material/Container';
-import { AppBar, Card, Box, Button, Grid, Toolbar, Typography, IconButton, FormControlLabel, Switch} from "@mui/material";
-import Head from "next/head";
-import { SignedIn, SignedOut, SignIn, UserButton, RedirectToSignIn } from "@clerk/nextjs";
-import { useUser } from "@clerk/nextjs";
-import { useRouter, usePathname } from "next/navigation";
-import DeckPage from "./view-decks/page";
-import {handleStripeSubmit} from './lib/handleStripeSubmit'
-import {useState,useEffect} from 'react'
-import {MultiColorMode} from './icons/nightmode'
-import Link from "next/link";
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-
-import { SignInModal,SignUpModal } from './components/Modal';
-
-import { lightTheme,darkTheme } from './theme';
+import {DeckPage} from './view-decks/DeckPage'
 //need to make sure certain content is only available on pro (ai generation)` 
 
 export default function Home() {
@@ -75,7 +115,7 @@ export default function Home() {
               label={mode==='dark' ? "Dark Mode" : "Light Mode"}
             />
           {/* <Link href='/view-decks'  passHref><Button sx={{color:'white'}}>Sign In</Button></Link>  */}
-          <Link href = '/view-decks' passHref><Button sx={{color:'white'}}>Sign In</Button></Link>
+          <Link href = '/sign-in' passHref><Button sx={{color:'white'}}>Sign In</Button></Link>
          <Link href = '/sign-up' passHref><Button sx={{color:'white'}}>Sign Up</Button></Link>
 
 
@@ -113,7 +153,7 @@ export default function Home() {
     </Typography>
         <Typography variant="h5">Create and study flash cards using AI </Typography>
         <Box sx ={{display:'flex',justifyContent:'center'}}> 
-        <Button variant="contained" sx = {{mt: 1}} href='/view-decks'>Get Started</Button>
+        <Button variant="contained" sx = {{mt: 1}} href='/sign-in'>Get Started</Button>
         </Box> 
       </Box>
     
@@ -219,22 +259,21 @@ export default function Home() {
               Unlock advanced features including AI-powered card generation, unlimited storage, and priority support. Ideal for serious learners and professionals.
             </Typography>
 
-             <Button variant="contained" href='view-decks'>Go Pro</Button> 
+             <Button variant="contained" href='sign-up'>Go Pro</Button> 
             </Card>
           </Grid>
         </Grid>
 
 
       </SignedOut>
-      <SignedIn>
-        <DeckPage/>
-      </SignedIn>
+      
     </Box>
     </ThemeProvider>
+    <SignedIn>
+        <DeckPage/>
+      </SignedIn>
     </>
     
   );
 }
-
-
 

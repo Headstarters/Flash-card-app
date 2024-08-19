@@ -71,5 +71,29 @@ export const  MultiColorMode = () =>{
 }
 
 
+export const CancelSubscriptionIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="10"
+      height="10"
+      viewBox="0 0 16 16"
+    >
+      <path d="M13 3.05A7 7 0 1013 13a7 7 0 000-9.95zM12 12a5.6 5.6 0 01-8 0 5.61 5.61 0 010-8 5.6 5.6 0 018 0 5.61 5.61 0 010 8zm-1.35-7.92L8 6.73 5.35 4.08 4.08 5.35 6.73 8l-2.65 2.65 1.27 1.27L8 9.27l2.65 2.65 1.27-1.27L9.27 8l2.65-2.65z"></path>
+    </svg>
+  )
+}
+
+export const DotIcon = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
+      <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512z" />
+    </svg>
+  )
+}
+
+
+
+
 
 

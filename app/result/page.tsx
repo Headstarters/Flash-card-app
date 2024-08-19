@@ -4,11 +4,11 @@
 import { useRouter,useSearchParams, usePathname  } from "next/navigation"
 import { useState ,useEffect} from "react"
 import { CircularProgress ,Container, Typography,Box, Button} from '@mui/material';
-import {upgradeRole} from '../lib/createRole'
+import {changeRole} from '../lib/createRole'
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import path from "path";
-import DeckPage from "../view-decks/page";
+// import DeckPage from "../view-decks/page";
 
 export default function ResultPage() {
     const router = useRouter()
@@ -19,6 +19,7 @@ export default function ResultPage() {
     const searchParams = useSearchParams()
     const session_id = searchParams.get('session_id')
     const pathname = usePathname()
+    const role = user?.publicMetadata['role']
     useEffect(() => {
         const fetchCheckoutSession = async () => {
           console.log(pathname)
@@ -40,6 +41,7 @@ export default function ResultPage() {
           }
         }
         fetchCheckoutSession()
+        
       }, [session_id])
 
       if (loading) {
@@ -66,12 +68,21 @@ export default function ResultPage() {
         if ( session && session.payment_status === 'paid') {
 
           // Upgrade the user's role
-          upgradeRole(user?.id, 'pro');
-          return <DeckPage/>
+          changeRole(user?.id, 'pro');
+          
+          router.push('/')
+          setTimeout(()=>{
+            if (typeof window !== "undefined") {
+              window.location.reload();
+            }
+          },5000)
+        }
+         
           // Navigate to '/view-decks' after upgrading the role
           
           
-        }
+       
+     
        
          
           // if (pathname.includes('/view-decksresult')) {
