@@ -69,13 +69,14 @@ export default function ResultPage() {
 
           // Upgrade the user's role
           changeRole(user?.id, 'pro');
-          
-          router.push('/')
+       
+         
           setTimeout(()=>{
             if (typeof window !== "undefined") {
               window.location.reload();
             }
-          },5000)
+          },2000)
+          router.push('/')
         }
          
           // Navigate to '/view-decks' after upgrading the role

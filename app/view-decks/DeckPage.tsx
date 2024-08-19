@@ -310,8 +310,8 @@ const handleOpen = () => setOpen(true);
       </Grid>
 
         {/**pre fetch links for speed */}
-      <Link href="/view-flashcards" prefetch />
-      <Link href="/study" prefetch />
+      <Link href="/view-flashcards" prefetch ={true}/>
+      <Link href="/study" prefetch={true} />
       
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>Add Multiple Decks</DialogTitle>
