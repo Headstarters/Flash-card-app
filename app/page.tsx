@@ -8,14 +8,17 @@ import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import DeckPage from "./view-decks/page";
+import {handleStripeSubmit} from './lib/handleStripeSubmit'
+import Link from "next/link";
 
 // Ensuring that certain content is only available for Pro users (AI generation)
+
 
 export default function Home() {
   const { isSignedIn } = useUser();
   const router = useRouter();
   const [isDarkMode, setIsDarkMode] = useState(false);
-
+  
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
@@ -61,9 +64,10 @@ export default function Home() {
         </AppBar>
         <Head>
           <title>Flash Card App</title>
+
           <meta name="description" content="AI Flash Card App" />
         </Head>
-        <Container
+        <Box
           sx={{
             backgroundColor: (theme) => theme.palette.background.default,
             fontFamily: "'Poppins', sans-serif",
@@ -135,14 +139,15 @@ export default function Home() {
                   <Typography variant="h6">Pro</Typography>
                   <Typography sx={{ fontStyle: "italic" }}>$5/month</Typography>
                   <Typography>Unlock advanced features including AI-powered card generation, unlimited storage, and priority support. Ideal for serious learners and professionals.</Typography>
-                  <Button variant="contained" onClick={handleSubmit}>Go Pro</Button>
+      
+             <Button variant="contained" href='view-decks'>Go Pro</Button> 
                 </Card>
               </Grid>
             </Grid>
           <SignedIn>
             <DeckPage />
           </SignedIn>
-        </Container>
+        </Box>
     </>
     </ThemeProvider>
   );

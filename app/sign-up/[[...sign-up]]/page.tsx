@@ -1,3 +1,4 @@
+'use client'
 import { SignUp } from '@clerk/nextjs'
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material'
 
@@ -6,6 +7,7 @@ import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/materi
 //complete route proection of generate page
 //need to add DB for users? - no need.
 export default function SignUpPage() {
+
   return (
     <>
     <Container
@@ -24,7 +26,7 @@ export default function SignUpPage() {
         display: 'flex',
         
     }}>
-        <SignUp  />
+        <SignUp forceRedirectUrl={'view-decks?action=createRole'}/>
         </Box>
         </Container>
    

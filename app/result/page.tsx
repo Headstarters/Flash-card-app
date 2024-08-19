@@ -1,32 +1,33 @@
 'use client'
+// @ts-nocheck
+
 import { useRouter,useSearchParams  } from "next/navigation"
 import { useState ,useEffect} from "react"
 import { CircularProgress ,Container, Typography,Box} from '@mui/material';
+import {upgradeRole} from '../lib/createRole'
+import { useUser } from "@clerk/nextjs";
 export default function ResultPage() {
     const router = useRouter()
-    const searchParams = useSearchParams()
-    const session_id = searchParams.get('session_id')
     const [loading, setLoading] = useState(true)
     const [session, setSession] = useState(null)
     const [error, setError] = useState('')
-  
+    const {user, isLoaded} = useUser()
+    const searchParams = useSearchParams()
+    const session_id = searchParams.get('session_id')
+    
     useEffect(() => {
         const fetchCheckoutSession = async () => {
           if (!session_id) return
           try {
-            //here we fetch the GET request
             const res = await fetch(`/api/stripe-session?session_id=${session_id}`)
             const sessionData = await res.json()
             if (res.ok) {
               setSession(sessionData)
             } else {
-                //if payment failed
               setError(sessionData.error)
             }
           } catch (err) {
-            //network connection problem
             setError('An error occurred while retrieving the session.')
-          
           } finally {
             setLoading(false)
           }
@@ -53,31 +54,47 @@ export default function ResultPage() {
           </Container>
         )
       } 
-      return(
-        <>
+      
+     
+      
+        if (isLoaded && session && session.payment_status === 'paid') {
+          // Upgrade the user's role
+          upgradeRole(user?.id, 'pro');
+      
+          // Navigate to '/view-decks' after upgrading the role
+          setTimeout(()=>{
+            router.push('/view-decks');
+          },3000)
+        }
+      
+     
+         
+      
+      
+    return (
         <Container maxWidth="sm" sx={{textAlign: 'center', mt: 4}}>
-        {session && session.payment_status === 'paid' ? (
-        <>
-            <Typography variant="h4">Thank you for your purchase!</Typography>
-            <Box sx={{mt: 2}}>
-            <Typography variant="h6">Session ID: {session_id}</Typography>
-            <Typography variant="body1">
-                We have received your payment. You will receive an email with the
-                order details shortly.
-            </Typography>
-            </Box>
-        </>
-        ) : (
-        <>
-            <Typography variant="h4">Payment failed</Typography>
-            <Box sx={{mt: 2}}>
-            <Typography variant="body1">
-                Your payment was not successful. Please try again.
-            </Typography>
-            </Box>
-        </>
-        )}
-    </Container>
-        </>
+          {session?.payment_status === 'paid' ? (
+            <>
+              <Typography variant="h4">Thank you for your purchase!</Typography>
+              <Box sx={{mt: 2}}>
+                <Typography variant="h6">Session ID: {session_id}</Typography>
+                <Typography variant="body1">
+                  We have received your payment. You will receive an email with the
+                  order details shortly.
+                </Typography>
+              </Box>
+            </>
+          ) : (
+            <>
+              <Typography variant="h4">Payment failed</Typography>
+              <Box sx={{mt: 2}}>
+                <Typography variant="body1">
+                  Your payment was not successful. Please try again.
+                </Typography>
+              </Box>
+            </>
+          )}
+        </Container>
       )
+      
   }
