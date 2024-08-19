@@ -230,9 +230,11 @@ const handleOpen = () => setOpen(true);
             />
         <Button color="inherit" onClick={handleOpen} sx={{color:'white'}}>Add Decks</Button>
          {isLoaded && role === 'pro' ? ( 
-        <Link href="/generate" passHref>
-            <Button color="inherit" sx={{color:'white'}}>Generate</Button>
-        </Link>
+          
+            <>
+              <Link href="/generate" passHref prefetch><Button  color="inherit" sx={{color:'white'}}>Generate</Button></Link>
+              
+              </>
          ) : ( 
         <Button color="secondary" variant="contained" onClick={handleStripeSubmit}>Go Pro</Button> 
        )} 
@@ -307,6 +309,10 @@ const handleOpen = () => setOpen(true);
         ))}
       </Grid>
 
+        {/**pre fetch links for speed */}
+      <Link href="/view-flashcards" prefetch />
+      <Link href="/study" prefetch />
+      
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>Add Multiple Decks</DialogTitle>
         <DialogContent>

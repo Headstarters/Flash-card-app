@@ -115,13 +115,14 @@ export default function Home() {
               label={mode==='dark' ? "Dark Mode" : "Light Mode"}
             />
           {/* <Link href='/view-decks'  passHref><Button sx={{color:'white'}}>Sign In</Button></Link>  */}
-          <Link href = '/sign-in' passHref><Button sx={{color:'white'}}>Sign In</Button></Link>
-         <Link href = '/sign-up' passHref><Button sx={{color:'white'}}>Sign Up</Button></Link>
+          <Link href = '/sign-in' prefetch passHref><Button sx={{color:'white'}}>Sign In</Button></Link>
+         <Link href = '/sign-up' prefetch passHref><Button sx={{color:'white'}}>Sign Up</Button></Link>
 
 
        </Toolbar>
      </AppBar>
-     
+      {/* <Link href='sign-in' prefetch/>
+      <Link href='sign-up' prefetch/> */}
       <Box
       sx={{
         textAlign: "center",
