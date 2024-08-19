@@ -1,57 +1,59 @@
-'use client'
+"use client";
 // @ts-nocheck
 
-import { useState,useEffect } from "react"
-import { db } from "@/firebase"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useUser,UserButton } from "@clerk/nextjs"
-import { FlashCard } from "../components/FlashCard"
+import { db } from "@/firebase";
+import { UserButton, useUser } from "@clerk/nextjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import Link from "next/link"
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { FlashCard } from "../components/FlashCard";
 
 import {
-    AppBar,
-    Box,
-    Button,
-    Card,
-    CardActionArea,
-    CardContent,
-    Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Grid,
-    IconButton,
-    TextField,
-    Toolbar,
-    Typography,
-  } from "@mui/material";
-  import {
-    addDoc,
-    collection,
-    deleteDoc,
-    doc,
-    getDoc,
-    getDocs,
-    updateDoc,
-  } from "firebase/firestore";
+  AppBar,
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  TextField,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 
 type FlashCard = {
-  id?: string,
-  front: string,
-  back: string,
-}
+  id?: string;
+  front: string;
+  back: string;
+};
 
-export default function FlashCardPage(){
-const {isLoaded,isSignedIn,user} = useUser()
-const router = useRouter()
-const [flashCards,setFlashCards] = useState<FlashCard []>([])
-const [deckName,setDeckName] = useState('')
-const searchParams = useSearchParams()
-const [open, setOpen] = useState(false);
-  const [newCards, setNewCards] = useState<FlashCard[]>([{ front: "", back: "" }]);
+export default function FlashCardPage() {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const router = useRouter();
+  const [flashCards, setFlashCards] = useState<FlashCard[]>([]);
+  const [deckName, setDeckName] = useState("");
+  const searchParams = useSearchParams();
+  const [open, setOpen] = useState(false);
+  const [newCards, setNewCards] = useState<FlashCard[]>([
+    { front: "", back: "" },
+  ]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<FlashCard | null>({
@@ -59,43 +61,40 @@ const [open, setOpen] = useState(false);
     front: "",
     back: "",
   });
-  const role = user?.publicMetadata['role']
-
-
+  const role = user?.publicMetadata["role"];
 
   const addCardInput = () => {
     setNewCards([...newCards, { front: "", back: "" }]);
   };
 
+  useEffect(() => {
+    const getFlashCards = async () => {
+      if (!user || !topic) return;
 
+      const deckRef = doc(collection(db, "users"), user?.id);
+      const flashCardRef = collection(deckRef, topic);
+      const flashCardSnap = await getDocs(flashCardRef);
+      const flashCardsCollection: FlashCard[] = flashCardSnap.docs.map(
+        (doc) => ({
+          id: doc.id,
+          front: doc.data().front,
+          back: doc.data().back,
+        })
+      );
 
+      if (flashCardsCollection.length > 0) {
+        setFlashCards(flashCardsCollection);
+      }
+      //if no decks then display a message
+    };
+    getFlashCards();
+  }, [user]);
+  const topic = searchParams.get("topic");
+  if (!isLoaded || !isSignedIn) {
+    return <></>;
+  }
 
-useEffect(()=>{
-    const getFlashCards = async ()=>{
-        if(!user || !topic)  return
-    
-        const deckRef = doc(collection(db,'users'),user?.id)
-        const flashCardRef = collection(deckRef,topic)
-        const flashCardSnap = await getDocs(flashCardRef)
-        const flashCardsCollection:FlashCard[] = flashCardSnap.docs.map(doc=>({
-            id:doc.id,
-            front:doc.data().front,
-            back:doc.data().back
-        })) 
-    
-        if(flashCardsCollection.length > 0){
-            setFlashCards(flashCardsCollection)
-        }
-       //if no decks then display a message
-    }
-  getFlashCards()
-},[user])
-const topic= searchParams.get('topic')
-if(!isLoaded || !isSignedIn){
-    return <></>
-}
-
-const handleOpen = () => setOpen(true);
+  const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     setNewCards([{ front: "", back: "" }]);
@@ -110,7 +109,7 @@ const handleOpen = () => setOpen(true);
     const deckRef = doc(collection(db, "users"), user.id);
     const cardRef = collection(deckRef, topic);
 
-    const newCardIds :string[]= [];
+    const newCardIds: string[] = [];
     for (const card of validCards) {
       const docRef = await addDoc(cardRef, {
         question: card.front.trim(),
@@ -131,13 +130,17 @@ const handleOpen = () => setOpen(true);
   };
 
   //keyof means we get the union of flashcard id | front  | back
-const handleCardInputChange = (index:number, field :keyof FlashCard, value:string) => {
-    const updatedCards :FlashCard[]= [...newCards];
-    updatedCards[index][field]  = value;
+  const handleCardInputChange = (
+    index: number,
+    field: keyof FlashCard,
+    value: string
+  ) => {
+    const updatedCards: FlashCard[] = [...newCards];
+    updatedCards[index][field] = value;
     setNewCards(updatedCards);
   };
 
-  const handleRemoveCard = async (cardId:string) => {
+  const handleRemoveCard = async (cardId: string) => {
     if (!user || !topic || !cardId) return;
     try {
       const deckRef = doc(collection(db, "users"), user.id);
@@ -150,7 +153,7 @@ const handleCardInputChange = (index:number, field :keyof FlashCard, value:strin
     }
   };
 
-  const handleEditOpen = (card:FlashCard) => {
+  const handleEditOpen = (card: FlashCard) => {
     setEditingCard(card);
     setEditOpen(true);
   };
@@ -178,36 +181,49 @@ const handleCardInputChange = (index:number, field :keyof FlashCard, value:strin
     return <></>;
   }
 
-
-
   return (
     <>
       <Box>
-      <AppBar position="static">
+        <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Flash Card App
             </Typography>
-            <Link href="/view-decks" passHref ><Button sx={{color:'white'}}>View Decks</Button></Link>
-            <Button color="inherit" onClick={handleOpen}>Add Cards</Button>
-            {isLoaded && role === 'pro' &&
-            <Link href="/generate" passHref ><Button sx={{color:'white'}}>Generate</Button></Link>
-            }
-            
-           
+            <Link href="/view-decks" passHref>
+              <Button sx={{ color: "white" }}>View Decks</Button>
+            </Link>
+            <Button color="inherit" onClick={handleOpen}>
+              Add Cards
+            </Button>
+            {isLoaded && role === "pro" && (
+              <Link href="/generate" passHref>
+                <Button sx={{ color: "white" }}>Generate</Button>
+              </Link>
+            )}
+
             <UserButton />
           </Toolbar>
-        </AppBar>
-          </Box>
-          
-          <Grid container spacing={2} sx={{ mt: 2 }}>
-        { flashCards.map((flashcard, index) => (
+                 
+        </AppBar>
+        <Box sx={{ mt: 2, mb: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push(`/study?topic=${topic}`)}
+          >
+            Study
+          </Button>
+        </Box>
+      </Box>
+
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        {flashCards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Box position="relative">
               <FlashCard
                 front={flashcard["front"]}
                 back={flashcard["back"]}
-                onDelete={() =>flashcard.id &&  handleRemoveCard(flashcard.id)}
+                onDelete={() => flashcard.id && handleRemoveCard(flashcard.id)}
                 onEdit={() => handleEditOpen(flashcard)}
               />
             </Box>
@@ -259,7 +275,11 @@ const handleCardInputChange = (index:number, field :keyof FlashCard, value:strin
             fullWidth
             value={editingCard?.front || ""}
             onChange={(e) =>
-              setEditingCard({ ...editingCard, front: e.target.value,back:'' })
+              setEditingCard({
+                ...editingCard,
+                front: e.target.value,
+                back: "",
+              })
             }
           />
           <TextField
@@ -268,7 +288,11 @@ const handleCardInputChange = (index:number, field :keyof FlashCard, value:strin
             fullWidth
             value={editingCard?.back || ""}
             onChange={(e) =>
-              setEditingCard({ ...editingCard, back: e.target.value ,front:''})
+              setEditingCard({
+                ...editingCard,
+                back: e.target.value,
+                front: "",
+              })
             }
           />
         </DialogContent>
@@ -277,7 +301,6 @@ const handleCardInputChange = (index:number, field :keyof FlashCard, value:strin
           <Button onClick={handleEditCard}>Save</Button>
         </DialogActions>
       </Dialog>
-
-        </>
-    )
+    </>
+  );
 }
