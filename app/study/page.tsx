@@ -61,6 +61,9 @@ export default function StudyPage() {
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Study: {topic}
             </Typography>
+            <Link href={`/view-flashcards?topic=${topic}`} passHref>
+              <Button sx={{ color: "white" }}>Back to Flashcards</Button>
+            </Link>
             <Link href="/view-decks" passHref>
               <Button sx={{ color: "white" }}>View Decks</Button>
             </Link>

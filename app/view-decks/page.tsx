@@ -249,7 +249,7 @@ const handleOpen = () => setOpen(true);
 
           </Box>
           {
-            flashCards.length === 0 &&
+            isLoaded && flashCards.length === 0 &&
             <Box sx={{textAlign:'center'}}>
              
               <Typography variant="h5" sx={{ mt: 5 , color:'white'}}>

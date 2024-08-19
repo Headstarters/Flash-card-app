@@ -54,19 +54,28 @@ export const FlashCardCarousel: React.FC<FlashCardCarouselProps> = ({
             transition: "transform 0.6s",
             transformStyle: "preserve-3d",
             transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            ":hover": {
+              boxShadow: '0 4px 8px 0 rgba(255, 0, 0,1.5)',
+            },
           },
         }}
       >
         <Box>
           <CardContent
             sx={{
+              
               position: "absolute",
               width: "100%",
               height: "100%",
               backfaceVisibility: "hidden",
               display: "flex",
-              justifyContent: "center",
+              flexDirection: "column",
+              justifyContent: "space-between",
               alignItems: "center",
+              boxSizing: "border-box",
+              wordWrap: "break-word",
+              padding: 2,
+              top: 30,
             }}
           >
             <Typography>{flashCards[currentIndex].front}</Typography>
@@ -74,13 +83,19 @@ export const FlashCardCarousel: React.FC<FlashCardCarouselProps> = ({
           <CardContent
             sx={{
               position: "absolute",
-              width: "100%",
-              height: "100%",
-              backfaceVisibility: "hidden",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              transform: "rotateY(180deg)",
+                width: "100%",
+                height: "100%",
+                //make the back invisible. Back is determined by which one is rotated. This one!
+                backfaceVisibility: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                alignItems: "center",
+                //prevent words from leaving container. Border-Box makes the sizing more accurate (adds padding and border) and word wrap does the job of wrapping the words
+                boxSizing: "border-box",
+                wordWrap: "break-word",
+                top: 30,
+                transform: "rotateY(180deg)",
             }}
           >
             <Typography>{flashCards[currentIndex].back}</Typography>
