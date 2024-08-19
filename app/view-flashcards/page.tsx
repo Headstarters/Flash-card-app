@@ -10,7 +10,9 @@ import {MultiColorMode} from '../icons/nightmode'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles';
 import { lightTheme,darkTheme } from '../theme';
-
+import {useState,useEffect} from 'react'
+import {useRouter, useSearchParams} from 'next/navigation'
+import { FlashCard } from "../components/FlashCard";
 import {
     AppBar,
     Box,
