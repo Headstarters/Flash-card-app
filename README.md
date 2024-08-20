@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Flash Card App
+
+## Overview
+The Flash Card App is a web application built with Next.js that allows users to create, edit, and manage flashcards. It leverages Firebase for data storage and Clerk for user authentication.
+
+## Features
+- User authentication with Clerk
+- Create and manage flashcards
+- Edit and delete flashcards
+- Dark and light mode toggle
+- Responsive design for various screen sizes
+
+## Prerequisites
+- Node.js (version 14 or higher)
+- npm or yarn
+- Firebase project setup
+- Clerk account for authentication
 
 ## Getting Started
 
-First, run the development server:
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/flash-card-app.git
+   cd flash-card-app
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+   or
+   ```bash
+   yarn install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Set up environment variables:**
+   Create a `.env.local` file in the root directory and add your Firebase and Clerk credentials:
+   ```plaintext
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
+   NEXT_PUBLIC_CLOUDFUNCTIONS_URL=your_cloudfunctions_url
+   CLERK_FRONTEND_API=your_clerk_frontend_api
+   CLERK_API_KEY=your_clerk_api_key
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   or
+   ```bash
+   yarn dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+5. **Open your browser and navigate to** `http://localhost:3000` **to see the application running.**
 
-## Learn More
+## Project Structure
+- `app/`: Contains the main application code
+  - `api/`: API routes
+  - `components/`: React components
+  - `generate/`: Page for generating flashcards
+  - `lib/`: Utility functions
+  - `theme/`: Theme configuration for dark and light modes
+- `public/`: Static assets
 
-To learn more about Next.js, take a look at the following resources:
+## Usage
+- Users can sign up or log in using Clerk.
+- Once authenticated, users can create flashcards by providing a topic, number of cards, and extra details.
+- Flashcards can be edited or deleted as needed.
+- Users can toggle between dark and light modes for better accessibility.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## License
+This project is licensed under the MIT License.
