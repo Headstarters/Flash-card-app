@@ -6,6 +6,7 @@ import {
   AppBar,
   Box,
   Button,
+  Card,
   Container,
   CssBaseline,
   Dialog,
@@ -38,6 +39,7 @@ type FlashCard = {
 };
 
 export default function StudyPage() {
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [editOpen, setEditOpen] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
   const { isLoaded, isSignedIn, user } = useUser();
@@ -56,6 +58,20 @@ export default function StudyPage() {
   };
 
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // refreshFlashCards();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
     const getFlashCards = async () => {
       if (!user || !topic) return;
 
@@ -63,21 +79,29 @@ export default function StudyPage() {
       const flashCardRef = collection(deckRef, topic);
       const flashCardSnap = await getDocs(flashCardRef);
       const flashCardsCollection: FlashCard[] = flashCardSnap.docs.map(
-        (doc) => ({
-          id: doc.id,
-          front: doc.data().front,
-          back: doc.data().back,
-        })
+        (doc) => {
+          console.log("Fetched card data:", doc.data());
+          return {
+            id: doc.id,
+            front: doc.data().front || doc.data().question,
+            back: doc.data().back || doc.data().answer,
+          };
+        }
       );
-
+      console.log("Mapped flashcards:", flashCardsCollection);
       setFlashCards(flashCardsCollection);
     };
+
     getFlashCards();
-  }, [user, topic]);
+  }, [user, topic, refreshTrigger]);
 
   if (!isLoaded || !isSignedIn) {
     return <></>;
   }
+
+  // const refreshFlashCards = () => {
+  //   setRefreshTrigger((prev) => prev + 1);
+  // };
 
   const handleEditOpen = (card) => {
     setEditingCard(card);
@@ -114,6 +138,10 @@ export default function StudyPage() {
       console.error("Error removing card:", error);
     }
   };
+
+  // useEffect(() => {
+  //   refreshFlashCards();
+  // }, []);
 
   return (
     <>
