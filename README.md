@@ -1,4 +1,5 @@
-<img width="248" alt="image" src="https://github.com/user-attachments/assets/3c0b4727-5766-4997-9359-87651cebeaba">
+<img width="241" alt="image" src="https://github.com/user-attachments/assets/314791b6-8be6-4ef8-b01a-08147063f451">
+
 
 
 # Flash Card App
