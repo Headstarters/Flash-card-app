@@ -1,3 +1,5 @@
+![WhatsApp Image 2024-08-19 at 19 26 20_3aeb17f8](https://github.com/user-attachments/assets/74cbb4c5-ae50-46d7-8635-bdad44f773d2)
+
 # Flash Card App
 
 ## Overview
